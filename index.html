@@ -1263,7 +1263,7 @@
 <body>
 
 <header>
-  <div class="logo"><img id="logo-img" src="" alt="Arddun Agency" style="height:32px;width:auto;display:block" /></div>
+  <div class="logo"><img id="logo-img" src="" alt="Arddun Agency" style="height:32px;width:auto;display:block;mix-blend-mode:multiply" /></div>
   <div class="header-right">
     <div class="season-tag">SS26 Collection</div>
     <button class="reservations-btn" onclick="openRequestsTab()">
@@ -1568,18 +1568,8 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzUezFC1hnKJUa2ixe61v_G
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let liveItems = [];
-let reservations = [];
 let itemHistory = {};
 let itemComments = {};
-let filters = { status:'all', brand:'all', size:'all' };
-let searchTerm = '';
-let pendingReserve = null;
-let editingItemId = null;
-let editStatus = 'IN STORAGE';
-let editClean = 'YES';
-let rpUnlocked = false;
-let rpPinBuf = '';
-let importParsed = [];
 
 const hardcodedImages = {
   "KELLY MINI DRESS": `data:image/jpeg;base64,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`,
