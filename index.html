@@ -2545,10 +2545,11 @@ function processImportFile(file) {
           'M':   ['M','US6/AU10/M'],
           'L':   ['L','US8/AU12/L'],
           'XL':  ['XL','US10/AU14/XL'],
+          'XXL': ['XXL','US12/AU16/XXL'],
         };
         const candidates = aliases[name] || [name];
         for (const c of candidates) {
-          const idx = headers.findIndex(h => h === c || h.startsWith(c));
+          const idx = headers.findIndex(h => h === c || h.startsWith(c) || h.endsWith(c) || h.endsWith('/' + c));
           if (idx !== -1) return idx;
         }
         return -1;
@@ -2562,6 +2563,7 @@ function processImportFile(file) {
       const sizeM     = col('M');
       const sizeL     = col('L');
       const sizeXL    = col('XL');
+      const sizeXXL   = col('XXL');
 
       const sizeCols = [
         { label:'XXS', idx:sizeXXS },
@@ -2570,6 +2572,7 @@ function processImportFile(file) {
         { label:'M',   idx:sizeM   },
         { label:'L',   idx:sizeL   },
         { label:'XL',  idx:sizeXL  },
+        { label:'XXL', idx:sizeXXL },
       ].filter(s => s.idx !== -1);
 
       const season = document.getElementById('import-season').value.trim() || 'SS26';
