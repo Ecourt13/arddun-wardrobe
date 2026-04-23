@@ -2713,7 +2713,7 @@ function showLoadingOverlay(show, errMsg) {
   if (!el) {
     el = document.createElement('div');
     el.id = 'loading-overlay';
-    el.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.93);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;font-family:"Roboto Mono",monospace;';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.93);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;';
     el.innerHTML = (
       '<div style="font-size:1rem;font-weight:500;color:#1a1a1a;letter-spacing:0.12em;text-transform:uppercase">Loading The Wardrobe…</div>' +
       '<div id="lo-msg" style="font-size:0.68rem;color:#888;letter-spacing:0.1em;text-transform:uppercase;max-width:360px;text-align:center"></div>' +
