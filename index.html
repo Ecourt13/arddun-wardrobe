@@ -2714,9 +2714,11 @@ function showLoadingOverlay(show, errMsg) {
     el = document.createElement('div');
     el.id = 'loading-overlay';
     el.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.93);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;font-family:"Roboto Mono",monospace;';
-    el.innerHTML = '<div style="font-size:1rem;font-weight:500;color:#1a1a1a;letter-spacing:0.12em;text-transform:uppercase">Loading The Wardrobe…</div>' +
+    el.innerHTML = (
+      '<div style="font-size:1rem;font-weight:500;color:#1a1a1a;letter-spacing:0.12em;text-transform:uppercase">Loading The Wardrobe…</div>' +
       '<div id="lo-msg" style="font-size:0.68rem;color:#888;letter-spacing:0.1em;text-transform:uppercase;max-width:360px;text-align:center"></div>' +
-      '<button onclick="loadData()" id="lo-btn" style="display:none;margin-top:4px;font-family:'Roboto Mono',monospace;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;padding:7px 14px;background:#1a1a1a;color:#fff;border:none;cursor:pointer;border-radius:2px">Retry</button>';
+      '<button onclick="loadData()" id="lo-btn" style="display:none;margin-top:4px;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;padding:7px 14px;background:#1a1a1a;color:#fff;border:none;cursor:pointer;border-radius:2px">Retry</button>'
+    );
     document.body.appendChild(el);
   }
   el.style.display = show ? 'flex' : 'none';
