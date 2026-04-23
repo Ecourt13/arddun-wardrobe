@@ -2128,11 +2128,12 @@ function submitReservation() {
 
   updateResBadge();
   // Persist to sheet (fire-and-forget)
+  const _pr = liveItems.find(i => i.id === pendingReserve.itemId);
   apiPost({
-    action:'submitRequest', id:item.id,
-    brand:item.brand, item:item.item, colour:item.colour, size:item.size,
+    action:'submitRequest', id:pendingReserve.itemId,
+    brand:pendingReserve.brand, item:pendingReserve.item, colour:pendingReserve.colour, size:pendingReserve.size,
     teamMember:name, dateOut:formatDate(dateOut), dateIn:formatDate(dateIn),
-    reason:reason, season:item.season||'SS26'
+    reason:reason, season:(_pr && _pr.season)||'SS26'
   }).catch(e => console.warn('Sheet save failed:', e));
   closeModal();
   renderCatalogue();
