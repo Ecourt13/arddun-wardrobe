@@ -2055,7 +2055,19 @@ function approveRequest(itemId) {
   const key = item.brand + '|' + item.item + '|' + item.colour;
   if (!itemHistory[key]) itemHistory[key] = [];
   const existing = itemHistory[key].find(e => e.name === item.teamMember && !e.returned);
-  if (existing) existing.approved = true;
+  if (existing) {
+    existing.approved = true;
+  } else {
+    itemHistory[key].push({
+      name: item.teamMember || '',
+      size: item.size || '',
+      dateOut: item.dateOut || new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}),
+      dateIn: item.dateIn || '',
+      reason: item.reason || '',
+      returned: false,
+      approved: true
+    });
+  }
   // Log to reservations
   reservations.push({
     brand: item.brand, item: item.item, colour: item.colour, size: item.size,
@@ -2076,6 +2088,8 @@ function rejectRequest(itemId) {
   const idx = liveItems.findIndex(i => String(i.id) === String(itemId));
   if (idx === -1) return;
   const item = liveItems[idx];
+  const rkey = item.brand + '|' + item.item + '|' + item.colour;
+  if (itemHistory[rkey]) itemHistory[rkey] = itemHistory[rkey].filter(e => !(e.name === item.teamMember && !e.returned && !e.approved));
   liveItems[idx].status = 'IN STORAGE';
   liveItems[idx].teamMember = null;
   liveItems[idx].dateOut = null;
