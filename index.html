@@ -1197,6 +1197,7 @@
     color: var(--available);
     background: #edf7f0;
   }
+
   .clean-btn.active-dirty {
     border-color: var(--cleaning);
     color: var(--cleaning);
@@ -2045,6 +2046,7 @@ function exitAdmin() {
 // ── APPROVE / REJECT ─────────────────────────────────────────────────────────
 function approveRequest(itemId) {
   isAdmin = true;
+  document.getElementById('admin-bar').classList.add('visible');
   const idx = liveItems.findIndex(i => i.id === itemId);
   if (idx === -1) return;
   liveItems[idx].status = 'OUT';
@@ -2070,6 +2072,7 @@ function approveRequest(itemId) {
 
 function rejectRequest(itemId) {
   isAdmin = true;
+  document.getElementById('admin-bar').classList.add('visible');
   const idx = liveItems.findIndex(i => i.id === itemId);
   if (idx === -1) return;
   const item = liveItems[idx];
@@ -2208,8 +2211,6 @@ function updateRpDots() {
 function checkRpPin() {
   if (rpPinBuffer === ADMIN_PIN) {
     rpUnlocked = true;
-    isAdmin = true;
-    document.getElementById('admin-bar').classList.add('visible');
     showRpContent();
   } else {
     for (let i = 0; i < 4; i++) {
@@ -2751,6 +2752,7 @@ async function apiGet(action) {
   return r.json();
 }
 async function apiPost(body) {
+  // Apps Script doesn't support CORS POST from external domains, so use GET with params
   const params = new URLSearchParams();
   for (const [k, v] of Object.entries(body)) {
     params.set(k, v === null || v === undefined ? '' : String(v));
@@ -2759,6 +2761,7 @@ async function apiPost(body) {
   if (!r.ok) throw new Error('API ' + r.status);
   return r.json();
 }
+
 // ── LOAD DATA FROM GOOGLE SHEET ───────────────────────────────────────────────
 async function loadData() {
   document.getElementById('lo-msg') && (document.getElementById('lo-msg').textContent = '');
