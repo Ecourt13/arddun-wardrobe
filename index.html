@@ -1562,7 +1562,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbytNLU93cXtk6ioV80WXrER7nm2LFKgauzH8FO8t-PyWPwC4TFeGzclFW_lOFix25ys7Q/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbymvJxdBkwZyATfKTcl30U7yTC0XFkscVxIdKymT4DQwJ3SUTBymGzOwIjEFH7VCrhOkA/exec';
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let liveItems = [];
@@ -2750,6 +2750,14 @@ async function apiGet(action) {
   return r.json();
 }
 async function apiPost(body) {
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(body)) {
+    params.set(k, v === null || v === undefined ? '' : String(v));
+  }
+  const r = await fetch(API_URL + '?' + params.toString());
+  if (!r.ok) throw new Error('API ' + r.status);
+  return r.json();
+}
   // Apps Script doesn't support CORS POST from external domains, so use GET with params
   const params = new URLSearchParams();
   for (const [k, v] of Object.entries(body)) {
