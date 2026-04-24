@@ -1840,6 +1840,13 @@ let editStatus = 'IN STORAGE';
 let editClean = 'YES';
 
 function openEditModal(itemId) {
+  if (!isAdmin) {
+    _pendingEditItemId = itemId;
+    epPinBuffer = ''; updateEpDots();
+    document.getElementById('ep-pin-error').textContent = '';
+    document.getElementById('edit-pin-overlay').style.display = 'flex';
+    return;
+  }
   const item = liveItems.find(i => String(i.id) === String(itemId));
   if (!item) return;
   editingItemId = itemId;
@@ -2840,6 +2847,56 @@ async function loadData() {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 loadData();
+
+let epPinBuffer = '';
+let _pendingEditItemId = null;
+function epPinPress(val) {
+  if (val === 'back') { epPinBuffer = epPinBuffer.slice(0,-1); }
+  else { if (epPinBuffer.length >= 4) return; epPinBuffer += val; }
+  updateEpDots();
+  if (epPinBuffer.length === 4) checkEpPin();
+}
+function updateEpDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('epd'+i);
+    if (!d) return;
+    d.classList.toggle('filled', i < epPinBuffer.length);
+    d.classList.remove('error');
+  }
+}
+function checkEpPin() {
+  if (epPinBuffer === ADMIN_PIN) {
+    isAdmin = true;
+    document.getElementById('admin-bar').classList.add('visible');
+    document.getElementById('edit-pin-overlay').style.display = 'none';
+    epPinBuffer = ''; updateEpDots();
+    if (_pendingEditItemId !== null) { openEditModal(_pendingEditItemId); _pendingEditItemId = null; }
+  } else {
+    for (let i = 0; i < 4; i++) { const d = document.getElementById('epd'+i); if (d) { d.classList.remove('filled'); d.classList.add('error'); } }
+    document.getElementById('ep-pin-error').textContent = 'Incorrect PIN — try again';
+    setTimeout(() => { epPinBuffer = ''; updateEpDots(); document.getElementById('ep-pin-error').textContent = ''; }, 1200);
+  }
+}
 </script>
+
+<div id="edit-pin-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:6px;padding:2.5rem 2rem;width:300px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
+    <div style="font-size:1.1rem;font-weight:300;margin-bottom:0.4rem;color:var(--ink)">Admin Access Required</div>
+    <div style="font-size:0.75rem;color:var(--warm-grey);margin-bottom:1.5rem">Enter the ops PIN to edit item status.</div>
+    <div class="pin-dots" style="justify-content:center;margin-bottom:1.25rem">
+      <div class="pin-dot" id="epd0"></div><div class="pin-dot" id="epd1"></div>
+      <div class="pin-dot" id="epd2"></div><div class="pin-dot" id="epd3"></div>
+    </div>
+    <div id="ep-pin-error" style="font-size:0.72rem;color:#c0392b;height:1rem;margin-bottom:0.75rem"></div>
+    <div class="pin-grid">
+      <button class="pin-btn" onclick="epPinPress('1')">1</button><button class="pin-btn" onclick="epPinPress('2')">2</button><button class="pin-btn" onclick="epPinPress('3')">3</button>
+      <button class="pin-btn" onclick="epPinPress('4')">4</button><button class="pin-btn" onclick="epPinPress('5')">5</button><button class="pin-btn" onclick="epPinPress('6')">6</button>
+      <button class="pin-btn" onclick="epPinPress('7')">7</button><button class="pin-btn" onclick="epPinPress('8')">8</button><button class="pin-btn" onclick="epPinPress('9')">9</button>
+      <button class="pin-btn" onclick="epPinPress('back')" style="font-size:0.9rem">⌫</button>
+      <button class="pin-btn" onclick="epPinPress('0')">0</button>
+      <button class="pin-btn" onclick="document.getElementById('edit-pin-overlay').style.display='none'">✕</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
