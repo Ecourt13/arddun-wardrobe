@@ -1745,7 +1745,7 @@ function renderCatalogue() {
           </div>
           ${cleanBadge}
           <div style="display:flex;gap:4px;flex-shrink:0;align-items:center">
-            ${isAdmin ? `<button class="edit-row-btn" onclick="openEditModal(${s.id})" title="Edit status">✏</button>` : ''}
+            <button class="edit-row-btn" onclick="openEditModal(${s.id})" title="Edit status">✏</button>
             ${s.status === 'REQUESTED'
               ? (isAdmin
                   ? `<button class="approve-btn" onclick="approveRequest(${s.id})">Approve</button>
