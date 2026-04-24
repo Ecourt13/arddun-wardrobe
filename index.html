@@ -2044,7 +2044,7 @@ function exitAdmin() {
 
 // ── APPROVE / REJECT ─────────────────────────────────────────────────────────
 function approveRequest(itemId) {
-  if (!isAdmin) { isAdmin = true; }
+  isAdmin = true;
   const idx = liveItems.findIndex(i => i.id === itemId);
   if (idx === -1) return;
   liveItems[idx].status = 'OUT';
@@ -2069,7 +2069,7 @@ function approveRequest(itemId) {
 }
 
 function rejectRequest(itemId) {
-  if (!isAdmin) { isAdmin = true; }
+  isAdmin = true;
   const idx = liveItems.findIndex(i => i.id === itemId);
   if (idx === -1) return;
   const item = liveItems[idx];
