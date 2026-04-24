@@ -2208,6 +2208,8 @@ function updateRpDots() {
 function checkRpPin() {
   if (rpPinBuffer === ADMIN_PIN) {
     rpUnlocked = true;
+    isAdmin = true;
+    document.getElementById('admin-bar').classList.add('visible');
     showRpContent();
   } else {
     for (let i = 0; i < 4; i++) {
