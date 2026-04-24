@@ -2750,7 +2750,12 @@ async function apiGet(action) {
   return r.json();
 }
 async function apiPost(body) {
-  const r = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  // Apps Script doesn't support CORS POST from external domains, so use GET with params
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(body)) {
+    params.set(k, v === null || v === undefined ? '' : String(v));
+  }
+  const r = await fetch(API_URL + '?' + params.toString());
   if (!r.ok) throw new Error('API ' + r.status);
   return r.json();
 }
