@@ -2758,7 +2758,6 @@ async function apiPost(body) {
   if (!r.ok) throw new Error('API ' + r.status);
   return r.json();
 }
-}
 // ── LOAD DATA FROM GOOGLE SHEET ───────────────────────────────────────────────
 async function loadData() {
   document.getElementById('lo-msg') && (document.getElementById('lo-msg').textContent = '');
