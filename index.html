@@ -1566,6 +1566,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbymvJxdBkwZyATfKTcl30U7
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let liveItems = [];
+let liveLoans = [];
 let itemHistory = {};
 let itemComments = {};
 let reservations = [];
@@ -2312,19 +2313,19 @@ function renderRpPending() {
 
 function renderRpHistory() {
   const el = document.getElementById('rp-history-list');
-  // Gather all history entries
-  const allEntries = [];
-  for (const [key, entries] of Object.entries(itemHistory)) {
-    const [brand, item, colour] = key.split('|');
-    entries.forEach(e => allEntries.push({brand, item, colour, ...e}));
-  }
-  // Also include Alice's seeded loan
-  const aliceAlreadyIn = allEntries.some(e => e.name === 'Alice Warre' && e.item === 'SABLE POLO SHIRT');
-  if (!aliceAlreadyIn) {
-    allEntries.unshift({brand:'Faithfull', item:'SABLE POLO SHIRT', colour:'MURANO STRIPE',
-      name:'Alice Warre', size:'M', dateOut:'23 Mar 2026', dateIn:'26 Mar 2026',
-      reason:'Store visit Paris', returned:true, approved:true});
-  }
+  // Read directly from liveLoans (loaded from Google Sheet - persists across computers)
+  const allEntries = liveLoans.map(r => ({
+    brand:   r.brand   || '',
+    item:    (r.item   || '').toUpperCase(),
+    colour:  (r.colour || '').toUpperCase(),
+    name:    r.borrowerName || '',
+    size:    r.size    || '',
+    dateOut: r.dateOut || '',
+    dateIn:  r.dateIn  || '',
+    reason:  r.reason  || '',
+    returned: String(r.status||'').toUpperCase() === 'RETURNED',
+    approved: ['OUT','RETURNED'].includes(String(r.status||'').toUpperCase())
+  }));
 
   if (allEntries.length === 0) {
     el.innerHTML = '<div class="empty-state" style="padding:3rem 1rem"><p>No loan history yet</p></div>';
@@ -2793,6 +2794,7 @@ async function loadData() {
       apiGet('getItems'), apiGet('getLoans'), apiGet('getComments')
     ]);
 
+    liveLoans = loans;
     // Map Items sheet → liveItems
     liveItems = items.map(r => ({
       id:         String(r.id),
