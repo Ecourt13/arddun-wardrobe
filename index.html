@@ -1886,7 +1886,7 @@ function selectEditClean(c) {
 }
 
 function saveEditStatus() {
-  const idx = liveItems.findIndex(i => i.id === editingItemId);
+  const idx = liveItems.findIndex(i => String(i.id) === String(editingItemId));
   if (idx === -1) return;
 
   const item = liveItems[idx];
@@ -1913,7 +1913,7 @@ function saveEditStatus() {
 
   // If returning to storage, mark history entry as returned
   if (editStatus === 'IN STORAGE') {
-    const itm = liveItems.find(i => i.id === editingItemId);
+    const itm = liveItems.find(i => String(i.id) === String(editingItemId));
     if (itm && itm.teamMember) {
       const hkey = itm.brand + '|' + itm.item + '|' + itm.colour;
       const entries = itemHistory[hkey] || [];
@@ -1926,7 +1926,7 @@ function saveEditStatus() {
       }
     }
   }
-  const _sv = liveItems.find(i => i.id === editingItemId);
+  const _sv = liveItems.find(i => String(i.id) === String(editingItemId));
   if (_sv) apiPost({
     action:'updateStatus', id:editingItemId, pin:ADMIN_PIN,
     status:editStatus, clean:editClean,
