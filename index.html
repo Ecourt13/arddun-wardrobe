@@ -1840,7 +1840,7 @@ let editStatus = 'IN STORAGE';
 let editClean = 'YES';
 
 function openEditModal(itemId) {
-  const item = liveItems.find(i => i.id === itemId);
+  const item = liveItems.find(i => String(i.id) === String(itemId));
   if (!item) return;
   editingItemId = itemId;
 
@@ -2047,7 +2047,7 @@ function exitAdmin() {
 function approveRequest(itemId) {
   isAdmin = true;
   document.getElementById('admin-bar').classList.add('visible');
-  const idx = liveItems.findIndex(i => i.id === itemId);
+  const idx = liveItems.findIndex(i => String(i.id) === String(itemId));
   if (idx === -1) return;
   liveItems[idx].status = 'OUT';
   // Log to history
@@ -2073,7 +2073,7 @@ function approveRequest(itemId) {
 function rejectRequest(itemId) {
   isAdmin = true;
   document.getElementById('admin-bar').classList.add('visible');
-  const idx = liveItems.findIndex(i => i.id === itemId);
+  const idx = liveItems.findIndex(i => String(i.id) === String(itemId));
   if (idx === -1) return;
   const item = liveItems[idx];
   liveItems[idx].status = 'IN STORAGE';
