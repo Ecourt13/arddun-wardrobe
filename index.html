@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1777387655075 -->
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1562,7 +1562,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyd0AnzgnV_Xi-9cO5DhUQxWXRuuttsLmfbNf--H5ukkmM7pdxX4tO2FCnQKyEKO-cV8w/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbymvJxdBkwZyATfKTcl30U7yTC0XFkscVxIdKymT4DQwJ3SUTBymGzOwIjEFH7VCrhOkA/exec';
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let liveItems = [];
@@ -1940,7 +1940,7 @@ function saveEditStatus() {
     status:editStatus, clean:editClean,
     teamMember:_sv.teamMember||'', dateOut:_sv.dateOut||'',
     dateIn:_sv.dateIn||'', reason:_sv.reason||'', notes:_sv.notes||''
-  }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 3000); }).catch(e => console.warn('Sheet save failed:', e));
+  }).then(() => loadData()).catch(e => console.warn('Sheet save failed:', e));
   closeEditModal();
   renderCatalogue();
   showToast('Status updated ✓');
@@ -2083,15 +2083,10 @@ function approveRequest(itemId) {
     reserved: new Date().toLocaleDateString('en-GB'), approved: true
   });
   updateResBadge();
-  renderCatalogue();
+  apiPost({ action:'approveRequest', id:itemId, pin:ADMIN_PIN }).then(() => loadData()).catch(e => console.warn('Sheet save failed:', e));
   if (rpUnlocked) { renderRpPending(); renderRpHistory(); }
   updateResBadge();
   showToast(`Approved — ${toTitleCase(item.item)} (${item.size}) is now On Loan ✓`);
-    renderCatalogue();
-  if (rpUnlocked) { renderRpPending(); renderRpHistory(); }
-  updateResBadge();
-  showToast(`Approved ✓`);
-  apiPost({ action:'approveRequest', id:itemId, pin:ADMIN_PIN }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 4000); }).catch(e => console.warn('Sheet save failed:', e));
 }
 
 function rejectRequest(itemId) {
@@ -2107,15 +2102,10 @@ function rejectRequest(itemId) {
   liveItems[idx].dateOut = null;
   liveItems[idx].dateIn = null;
   liveItems[idx].reason = null;
-  renderCatalogue();
+  apiPost({ action:'rejectRequest', id:itemId, pin:ADMIN_PIN }).then(() => loadData()).catch(e => console.warn('Sheet save failed:', e));
   if (rpUnlocked) { renderRpPending(); renderRpHistory(); }
   updateResBadge();
   showToast(`Request rejected — ${toTitleCase(item.item)} (${item.size}) returned to storage`);
-    renderCatalogue();
-  if (rpUnlocked) { renderRpPending(); renderRpHistory(); }
-  updateResBadge();
-  showToast(`Request rejected`);
-  apiPost({ action:'rejectRequest', id:itemId, pin:ADMIN_PIN }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 4000); }).catch(e => console.warn('Sheet save failed:', e));
 }
 
 // ── SEND REQUEST EMAIL via mailto ─────────────────────────────────────────────
@@ -2177,10 +2167,10 @@ function submitReservation() {
     brand:pendingReserve.brand, item:pendingReserve.item, colour:pendingReserve.colour, size:pendingReserve.size,
     teamMember:name, dateOut:formatDate(dateOut), dateIn:formatDate(dateIn),
     reason:reason, season:(_pr && _pr.season)||'SS26'
-  }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 4000); }).catch(e => console.warn('Sheet save failed:', e));
+  }).then(() => loadData()).catch(e => console.warn('Sheet save failed:', e));
   closeModal();
-  renderCatalogue();
   showToast('Request sent — awaiting approval ⏳');
+}
 
 function formatDate(d) {
   if (!d) return '';
@@ -2792,58 +2782,62 @@ async function apiPost(body) {
 }
 
 // ── LOAD DATA FROM GOOGLE SHEET ───────────────────────────────────────────────
-function applyData(items, loans, comments) {
-  liveItems = items.map(r => ({
-    id: String(r.id), season: String(r.season||'SS26'), brand: String(r.brand||''),
-    item: String(r.item||'').toUpperCase(), colour: String(r.colour||'').toUpperCase(),
-    size: String(r.size||'').trim(), clean: String(r.clean||'YES'),
-    status: String(r.status||'IN STORAGE'), teamMember: r.teamMember||null,
-    dateOut: r.dateOut||null, dateIn: r.dateIn||null, reason: r.reason||null, notes: r.notes||null,
-  }));
-  liveLoans = loans;
-  itemHistory = {};
-  loans.forEach(r => {
-    const key = (r.brand||'')+'|'+String(r.item||'').toUpperCase()+'|'+String(r.colour||'').toUpperCase();
-    if (!itemHistory[key]) itemHistory[key] = [];
-    itemHistory[key].push({ name:r.borrowerName, size:r.size, dateOut:r.dateOut, dateIn:r.dateIn,
-      reason:r.reason, returned:String(r.status||'')==='RETURNED',
-      approved:String(r.status||'')==='OUT'||String(r.status||'')==='RETURNED' });
-  });
-  itemComments = {};
-  comments.forEach(r => {
-    const key = (r.brand||'')+'|'+String(r.item||'').toUpperCase()+'|'+String(r.colour||'').toUpperCase();
-    if (!itemComments[key]) itemComments[key] = [];
-    itemComments[key].push({ author:r.author, text:r.comment, damaged:r.damaged==='YES', date:r.date });
-  });
-  populateImageCache(); updateResBadge(); renderCatalogue();
-}
-
 async function loadData() {
   document.getElementById('lo-msg') && (document.getElementById('lo-msg').textContent = '');
   document.getElementById('lo-btn') && (document.getElementById('lo-btn').style.display = 'none');
-  const CACHE_KEY = 'arddun_wardrobe_cache';
-  const CACHE_TTL = 5 * 60 * 1000;
-  try {
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (cached) {
-      const { ts, items, loans, comments } = JSON.parse(cached);
-      if (Date.now() - ts < CACHE_TTL) {
-        applyData(items, loans, comments);
-        showLoadingOverlay(false);
-        apiGet('getAll').then(d => {
-          applyData(d.items, d.loans, d.comments);
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ ts:Date.now(), items:d.items, loans:d.loans, comments:d.comments }));
-        }).catch(()=>{});
-        return;
-      }
-    }
-  } catch(e) {}
   showLoadingOverlay(true);
   try {
-    const d = await apiGet('getAll');
-    applyData(d.items, d.loans, d.comments);
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts:Date.now(), items:d.items, loans:d.loans, comments:d.comments }));
+    const [items, loans, comments] = await Promise.all([
+      apiGet('getItems'), apiGet('getLoans'), apiGet('getComments')
+    ]);
+
+    liveLoans = loans;
+    // Map Items sheet → liveItems
+    liveItems = items.map(r => ({
+      id:         String(r.id),
+      season:     String(r.season  || 'SS26'),
+      brand:      String(r.brand   || ''),
+      item:       String(r.item    || '').toUpperCase(),
+      colour:     String(r.colour  || '').toUpperCase(),
+      size:       String(r.size    || '').trim(),
+      clean:      String(r.clean   || 'YES'),
+      status:     String(r.status  || 'IN STORAGE'),
+      teamMember: r.teamMember || null,
+      dateOut:    r.dateOut    || null,
+      dateIn:     r.dateIn     || null,
+      reason:     r.reason     || null,
+      notes:      r.notes      || null,
+    }));
+
+    // Map Loans sheet → itemHistory
+    itemHistory = {};
+    loans.forEach(r => {
+      const key = (r.brand||'') + '|' + String(r.item||'').toUpperCase() + '|' + String(r.colour||'').toUpperCase();
+      if (!itemHistory[key]) itemHistory[key] = [];
+      itemHistory[key].push({
+        name:     r.borrowerName,
+        size:     r.size,
+        dateOut:  r.dateOut,
+        dateIn:   r.dateIn,
+        reason:   r.reason,
+        returned: String(r.status||'') === 'RETURNED',
+        approved: String(r.status||'') === 'OUT' || String(r.status||'') === 'RETURNED'
+      });
+    });
+
+    // Map Comments sheet → itemComments
+    itemComments = {};
+    comments.forEach(r => {
+      const key = (r.brand||'') + '|' + String(r.item||'').toUpperCase() + '|' + String(r.colour||'').toUpperCase();
+      if (!itemComments[key]) itemComments[key] = [];
+      itemComments[key].push({ author:r.author, text:r.comment, damaged:r.damaged==='YES', date:r.date });
+    });
+
     showLoadingOverlay(false);
+    populateImageCache();
+    updateResBadge();
+    renderCatalogue();
+
   } catch(e) {
     console.error(e);
     showLoadingOverlay(true, 'Could not load — check connection and retry');
