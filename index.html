@@ -2087,7 +2087,11 @@ function approveRequest(itemId) {
   if (rpUnlocked) { renderRpPending(); renderRpHistory(); }
   updateResBadge();
   showToast(`Approved — ${toTitleCase(item.item)} (${item.size}) is now On Loan ✓`);
-  apiPost({ action:'approveRequest', id:itemId, pin:ADMIN_PIN }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 3000); }).catch(e => console.warn('Sheet save failed:', e));
+    renderCatalogue();
+  if (rpUnlocked) { renderRpPending(); renderRpHistory(); }
+  updateResBadge();
+  showToast(`Approved ✓`);
+  apiPost({ action:'approveRequest', id:itemId, pin:ADMIN_PIN }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 4000); }).catch(e => console.warn('Sheet save failed:', e));
 }
 
 function rejectRequest(itemId) {
@@ -2107,7 +2111,11 @@ function rejectRequest(itemId) {
   if (rpUnlocked) { renderRpPending(); renderRpHistory(); }
   updateResBadge();
   showToast(`Request rejected — ${toTitleCase(item.item)} (${item.size}) returned to storage`);
-  apiPost({ action:'rejectRequest', id:itemId, pin:ADMIN_PIN }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 3000); }).catch(e => console.warn('Sheet save failed:', e));
+    renderCatalogue();
+  if (rpUnlocked) { renderRpPending(); renderRpHistory(); }
+  updateResBadge();
+  showToast(`Request rejected`);
+  apiPost({ action:'rejectRequest', id:itemId, pin:ADMIN_PIN }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 4000); }).catch(e => console.warn('Sheet save failed:', e));
 }
 
 // ── SEND REQUEST EMAIL via mailto ─────────────────────────────────────────────
@@ -2169,10 +2177,10 @@ function submitReservation() {
     brand:pendingReserve.brand, item:pendingReserve.item, colour:pendingReserve.colour, size:pendingReserve.size,
     teamMember:name, dateOut:formatDate(dateOut), dateIn:formatDate(dateIn),
     reason:reason, season:(_pr && _pr.season)||'SS26'
-  }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); return loadData(); }).catch(e => console.warn('Sheet save failed:', e));
+  }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 4000); }).catch(e => console.warn('Sheet save failed:', e));
   closeModal();
+  renderCatalogue();
   showToast('Request sent — awaiting approval ⏳');
-}
 
 function formatDate(d) {
   if (!d) return '';
