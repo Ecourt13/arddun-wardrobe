@@ -1940,7 +1940,7 @@ function saveEditStatus() {
     status:editStatus, clean:editClean,
     teamMember:_sv.teamMember||'', dateOut:_sv.dateOut||'',
     dateIn:_sv.dateIn||'', reason:_sv.reason||'', notes:_sv.notes||''
-  }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); return loadData(); }).catch(e => console.warn('Sheet save failed:', e));
+  }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 3000); }).catch(e => console.warn('Sheet save failed:', e));
   closeEditModal();
   renderCatalogue();
   showToast('Status updated ✓');
@@ -2083,10 +2083,11 @@ function approveRequest(itemId) {
     reserved: new Date().toLocaleDateString('en-GB'), approved: true
   });
   updateResBadge();
-  apiPost({ action:'approveRequest', id:itemId, pin:ADMIN_PIN }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); return loadData(); }).catch(e => console.warn('Sheet save failed:', e));
+  renderCatalogue();
   if (rpUnlocked) { renderRpPending(); renderRpHistory(); }
   updateResBadge();
   showToast(`Approved — ${toTitleCase(item.item)} (${item.size}) is now On Loan ✓`);
+  apiPost({ action:'approveRequest', id:itemId, pin:ADMIN_PIN }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 3000); }).catch(e => console.warn('Sheet save failed:', e));
 }
 
 function rejectRequest(itemId) {
@@ -2102,10 +2103,11 @@ function rejectRequest(itemId) {
   liveItems[idx].dateOut = null;
   liveItems[idx].dateIn = null;
   liveItems[idx].reason = null;
-  apiPost({ action:'rejectRequest', id:itemId, pin:ADMIN_PIN }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); return loadData(); }).catch(e => console.warn('Sheet save failed:', e));
+  renderCatalogue();
   if (rpUnlocked) { renderRpPending(); renderRpHistory(); }
   updateResBadge();
   showToast(`Request rejected — ${toTitleCase(item.item)} (${item.size}) returned to storage`);
+  apiPost({ action:'rejectRequest', id:itemId, pin:ADMIN_PIN }).then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 3000); }).catch(e => console.warn('Sheet save failed:', e));
 }
 
 // ── SEND REQUEST EMAIL via mailto ─────────────────────────────────────────────
