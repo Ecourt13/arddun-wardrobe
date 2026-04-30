@@ -1735,9 +1735,12 @@ function renderCatalogue() {
           ? `<span class="clean-indicator dirty">Needs Clean</span>`
           : `<span class="clean-indicator">Clean ✓</span>`;
 
-        const loanInfo = s.status === 'OUT' && s.teamMember
-          ? `<span style="font-size:0.6rem;color:var(--on-loan);margin-left:4px">${s.teamMember}</span>` : '';
-
+        const loanInfo = isAdmin && s.status === 'OUT' && s.teamMember
+          ? `<span style="font-size:0.6rem;color:var(--warm-grey)">${toTitleCase(s.teamMember)}</span>`
+          : isAdmin && s.status === 'REQUESTED' && s.teamMember
+          ? `<span style="font-size:0.6rem;color:var(--warm-grey)">Requested by ${toTitleCase(s.teamMember)}</span>`
+          : '';
+        
         return `<div class="size-row">
           <span class="size-tag">${s.size.trim()}</span>
           <div style="display:flex;align-items:center;gap:6px;flex:1">
