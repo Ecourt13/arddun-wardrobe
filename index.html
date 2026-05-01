@@ -1434,7 +1434,19 @@
       </div>
       <div class="form-field">
         <label class="form-label">Reason / Event</label>
-        <input type="text" class="form-input" id="res-reason" placeholder="e.g. Store visit, Press day..." />
+        <select class="form-input" id="res-reason" style="cursor:pointer;background:#fff">
+          <option value="">Select a reason…</option>
+          <option value="Market Week">Market Week</option>
+          <option value="Client Meeting">Client Meeting</option>
+          <option value="Press Day">Press Day</option>
+          <option value="Store Training">Store Training</option>
+          <option value="Work Event">Work Event</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Season <span style="font-size:0.75em;font-weight:300;color:#999">(optional)</span></label>
+        <input type="text" class="form-input" id="res-season" placeholder="e.g. SS26, AW26…" />
       </div>
       <button class="submit-btn" onclick="submitReservation()">Send Request</button>
     </div>
@@ -2137,7 +2149,8 @@ function submitReservation() {
   const name = document.getElementById('res-name').value.trim();
   const dateOut = document.getElementById('res-date-out').value;
   const dateIn = document.getElementById('res-date-in').value;
-  const reason = document.getElementById('res-reason').value.trim();
+  const reason = document.getElementById('res-reason').value;
+  const season = document.getElementById('res-season') ? document.getElementById('res-season').value.trim() : '';
 
   if (!name || !dateOut || !dateIn) {
     showToast('Please fill in all required fields');
@@ -2169,7 +2182,7 @@ function submitReservation() {
     action:'submitRequest', id:pendingReserve.itemId,
     brand:pendingReserve.brand, item:pendingReserve.item, colour:pendingReserve.colour, size:pendingReserve.size,
     teamMember:name, dateOut:formatDate(dateOut), dateIn:formatDate(dateIn),
-    reason:reason, season:(_pr && _pr.season)||'SS26'
+    reason:season ? reason + (season ? ' — ' + season : '') : reason, season:(_pr && _pr.season)||'SS26'
   }).then(() => loadData()).catch(e => console.warn('Sheet save failed:', e));
   closeModal();
   showToast('Request sent — awaiting approval ⏳');
