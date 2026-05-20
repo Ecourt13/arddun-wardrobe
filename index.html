@@ -2563,10 +2563,23 @@ function processImportFile(file) {
 
       // Detect brand from sheet content
       let detectedBrand = 'Unknown';
-      for (let i = 0; i < headerRow; i++) {
-        const rowStr = rows[i].join(' ').toUpperCase();
-        if (rowStr.includes('FAITHFULL')) { detectedBrand = 'Faithfull'; break; }
-        if (rowStr.includes('PH5')) { detectedBrand = 'PH5'; break; }
+      // First try filename
+      const fileUpper = file.name.toUpperCase();
+      if (fileUpper.includes('FAITHFULL')) { detectedBrand = 'Faithfull'; }
+      else if (fileUpper.includes('PH5')) { detectedBrand = 'PH5'; }
+      // Then try sheet content rows
+      if (detectedBrand === 'Unknown') {
+        for (let i = 0; i < headerRow; i++) {
+          const rowStr = rows[i].join(' ').toUpperCase();
+          if (rowStr.includes('FAITHFULL')) { detectedBrand = 'Faithfull'; break; }
+          if (rowStr.includes('PH5')) { detectedBrand = 'PH5'; break; }
+        }
+      }
+      // Also check all rows if still unknown
+      if (detectedBrand === 'Unknown') {
+        const allStr = rows.flat().join(' ').toUpperCase();
+        if (allStr.includes('FAITHFULL')) detectedBrand = 'Faithfull';
+        else if (allStr.includes('PH5')) detectedBrand = 'PH5';
       }
 
       // Column helpers
