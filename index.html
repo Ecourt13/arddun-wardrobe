@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- v1779461508489 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2235,6 +2235,7 @@ function fmtShort(d){if(!d)return"";return d.toLocaleDateString("en-GB",{day:"nu
 function getAvailabilityWindow(item){const st=String(item.status||"").toUpperCase();if(st!=="OUT"&&st!=="REQUESTED")return{available:true};const ret=parseItemDate(item.dateIn);if(!ret)return{available:false};const avail=new Date(ret);avail.setDate(avail.getDate()-7);const today=new Date();today.setHours(0,0,0,0);if(avail>=today)return{available:true,availableUntil:avail,returnDate:ret};return{available:false,returnDate:ret};}
 function hasDateConflict(itemId,reqOut){if(!itemId)return false;const item=liveItems.find(i=>String(i.id)===String(itemId));if(!item)return false;const st=String(item.status||"").toUpperCase();if(st!=="OUT"&&st!=="REQUESTED")return false;const ret=parseItemDate(item.dateIn);if(!ret)return false;const buf=new Date(ret);buf.setDate(buf.getDate()-7);const d=new Date(reqOut);return d>=buf&&d<ret;}
 function submitReservation() {
+  if (pendingReserve && !pendingReserve.itemId) { const _m = liveItems.find(i => i.brand===pendingReserve.brand && i.item.toUpperCase()===pendingReserve.item.toUpperCase() && i.colour.toUpperCase()===pendingReserve.colour.toUpperCase() && i.size.trim()===pendingReserve.size.trim()); if (_m) pendingReserve.itemId = _m.id; }
   const name = document.getElementById('res-name').value.trim();
   const dateOut = document.getElementById('res-date-out').value;
   const dateIn = document.getElementById('res-date-in').value;
@@ -3065,6 +3066,15 @@ function checkPw() {
       Enter
     </button>
     <div id="pw-error" style="text-align:center;font-size:0.65rem;color:#e74c3c;letter-spacing:0.08em;text-transform:uppercase;height:1rem"></div>
+  </div>
+</div>
+
+<div id="booking-block-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:4px;padding:2rem 2rem 1.5rem;width:340px;max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
+    <div style="font-size:1.8rem;margin-bottom:0.75rem">⚠️</div>
+    <div style="font-family:Arial,sans-serif;font-size:1rem;font-weight:600;color:#1B2D5B;margin-bottom:0.5rem">Item Already Booked</div>
+    <div id="booking-block-msg" style="font-family:Arial,sans-serif;font-size:0.8rem;color:#555;line-height:1.6;margin-bottom:1.5rem"></div>
+    <button onclick="document.getElementById('booking-block-modal').style.display='none'" style="background:#1B2D5B;color:#fff;border:none;border-radius:3px;padding:10px 24px;font-family:Arial,sans-serif;font-size:0.8rem;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase">Choose Different Dates</button>
   </div>
 </div>
 </body>
