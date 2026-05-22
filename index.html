@@ -2745,7 +2745,8 @@ function importConfirm() {
   }
 
   apiPost({ action:'importItems', pin:ADMIN_PIN, items: liveItems.slice(-added) })
-    .catch(e => console.warn('Sheet import failed:', e));
+    .then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 1500); })
+    .catch(e => console.warn('Import save failed:', e))
   importClear();
   renderCatalogue();
   updateResBadge();
