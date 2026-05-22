@@ -2232,7 +2232,7 @@ function hasDateConflict(itemId, requestedOut, requestedIn) {
 function parseItemDate(d){if(!d)return null;if(d instanceof Date)return new Date(d);const s=String(d);if(s.includes("T"))return new Date(s);const p=s.split("/");if(p.length===3)return new Date(p[2],p[1]-1,p[0]);return new Date(s);}
 function fmtShort(d){if(!d)return"";return d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});}
 function getAvailabilityWindow(item){const st=String(item.status||"").toUpperCase();if(st!=="OUT"&&st!=="REQUESTED")return{available:true};const ret=parseItemDate(item.dateIn);if(!ret)return{available:false};const avail=new Date(ret);avail.setDate(avail.getDate()-7);const today=new Date();today.setHours(0,0,0,0);if(avail>=today)return{available:true,availableUntil:avail,returnDate:ret};return{available:false,returnDate:ret};}
-function hasDateConflict(itemId,reqOut){const item=liveItems.find(i=>String(i.id)===String(itemId));if(!item)return false;const st=String(item.status||"").toUpperCase();if(st!=="OUT"&&st!=="REQUESTED")return false;const ret=parseItemDate(item.dateIn);if(!ret)return false;const buf=new Date(ret);buf.setDate(buf.getDate()-7);const d=new Date(reqOut);return d>=buf&&d<ret;}
+function hasDateConflict(itemId,reqOut){if(!itemId)return false;const item=liveItems.find(i=>String(i.id)===String(itemId));if(!item)return false;const st=String(item.status||"").toUpperCase();if(st!=="OUT"&&st!=="REQUESTED")return false;const ret=parseItemDate(item.dateIn);if(!ret)return false;const buf=new Date(ret);buf.setDate(buf.getDate()-7);const d=new Date(reqOut);return d>=buf&&d<ret;}
 function submitReservation() {
   const name = document.getElementById('res-name').value.trim();
   const dateOut = document.getElementById('res-date-out').value;
