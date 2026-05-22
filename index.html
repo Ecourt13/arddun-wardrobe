@@ -1255,6 +1255,15 @@
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
   }
+  /* Available until button */
+  .avail-until-btn {
+    background: var(--ink) !important;
+    color: #fff !important;
+    font-size: 0.55rem !important;
+    padding: 4px 8px !important;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -1768,7 +1777,18 @@ function renderCatalogue() {
                   ? `<button class="approve-btn" onclick="approveRequest(${s.id})">Approve</button>
                      <button class="reject-btn" onclick="rejectRequest(${s.id})">Reject</button>`
                   : `<button disabled style="font-size:0.58rem;padding:3px 8px;background:#f3f0ff;color:var(--requested);border:1px solid #e9e5ff;border-radius:2px;letter-spacing:0.06em;text-transform:uppercase;cursor:default">⏳ Requested</button>`)
-              : s.status === 'OUT'
+              : s.status === 'OUT' || s.status === 'REQUESTED'
+                ? (() => {
+                    const win = getAvailabilityWindow(s);
+                    if (win.available && win.availableUntil) {
+                      return `<button onclick="openModal('${escJs(group.brand)}','${escJs(group.item)}','${escJs(group.colour)}','${s.size.trim()}')"
+                        class="request-btn avail-until-btn" title="Available until ${fmtShort(win.availableUntil)}">
+                        Available until ${fmtShort(win.availableUntil)}
+                      </button>`;
+                    }
+                    return '';
+                  })()
+                : s.status === 'OUT_SKIP'
                 ? `<button disabled style="font-size:0.58rem;padding:3px 8px;background:var(--soft-grey);color:var(--warm-grey);border:none;border-radius:2px;letter-spacing:0.08em;text-transform:uppercase;cursor:not-allowed">Loaned</button>`
                 : `<button onclick="openModal('${escJs(group.brand)}','${escJs(group.item)}','${escJs(group.colour)}','${s.size.trim()}',${s.id})"
                     style="font-size:0.58rem;padding:3px 8px;background:var(--ink);color:var(--cream);border:none;cursor:pointer;border-radius:2px;letter-spacing:0.08em;text-transform:uppercase;flex-shrink:0">
@@ -2145,6 +2165,69 @@ Please log in to the wardrobe tracker to approve or reject this request.`
 }
 
 // ── SUBMIT REQUEST (replaces submitReservation) ───────────────────────────────
+
+// ── AVAILABILITY WINDOW HELPER ───────────────────────────────────────────────
+function getAvailabilityWindow(item) {
+  // Returns null if fully unavailable, or {availableUntil} if available with a window
+  const st = String(item.status||'').toUpperCase();
+  if (st !== 'OUT' && st !== 'REQUESTED') return { available: true };
+  
+  const returnDate = parseItemDate(item.dateIn);
+  if (!returnDate) return { available: false };
+  
+  // Available until = return date minus 7 days buffer
+  const availUntil = new Date(returnDate);
+  availUntil.setDate(availUntil.getDate() - 7);
+  
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  
+  if (availUntil >= today) {
+    return { available: true, availableUntil: availUntil, returnDate };
+  }
+  return { available: false, returnDate };
+}
+
+function parseItemDate(d) {
+  if (!d) return null;
+  if (d instanceof Date) return new Date(d);
+  const s = String(d);
+  // ISO format
+  if (s.includes('T')) return new Date(s);
+  // DD/MM/YYYY
+  const parts = s.split('/');
+  if (parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
+  return new Date(s);
+}
+
+function fmtShort(d) {
+  if (!d) return '';
+  return d.toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+}
+
+function hasDateConflict(itemId, requestedOut, requestedIn) {
+  // Check if requested dates conflict with any existing loan (with 7 day buffer)
+  const item = liveItems.find(i => String(i.id) === String(itemId));
+  if (!item) return false;
+  const st = String(item.status||'').toUpperCase();
+  if (st !== 'OUT' && st !== 'REQUESTED') return false;
+  
+  const returnDate = parseItemDate(item.dateIn);
+  if (!returnDate) return false;
+  
+  const bufferDate = new Date(returnDate);
+  bufferDate.setDate(bufferDate.getDate() - 7);
+  
+  // Conflict if requested dateOut is before the buffer date
+  const reqOut = new Date(requestedOut);
+  if (reqOut < bufferDate) return false; // requestedOut is before buffer - no conflict
+  
+  // Conflict if requested dateOut falls within the loan period + buffer
+  if (reqOut <= returnDate) return true;
+  
+  return false;
+}
+
 function submitReservation() {
   const name = document.getElementById('res-name').value.trim();
   const dateOut = document.getElementById('res-date-out').value;
@@ -2154,6 +2237,16 @@ function submitReservation() {
 
   if (!name || !dateOut || !dateIn) {
     showToast('Please fill in all required fields');
+    return;
+  }
+  // Check for date conflicts
+  if (pendingReserve && hasDateConflict(pendingReserve.itemId, dateOut, dateIn)) {
+    const item = liveItems.find(i => String(i.id) === String(pendingReserve.itemId));
+    const returnDate = item ? parseItemDate(item.dateIn) : null;
+    const bufferDate = returnDate ? new Date(returnDate) : null;
+    if (bufferDate) bufferDate.setDate(bufferDate.getDate() - 7);
+    const availFrom = bufferDate ? fmtShort(bufferDate) : '';
+    showToast('Item booked for this date. Please select from the available dates' + (availFrom ? ' (available from ' + availFrom + ')' : ''));
     return;
   }
 
