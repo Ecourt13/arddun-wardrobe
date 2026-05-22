@@ -2905,6 +2905,27 @@ function checkEpPin() {
     setTimeout(() => { epPinBuffer = ''; updateEpDots(); document.getElementById('ep-pin-error').textContent = ''; }, 1200);
   }
 }
+
+// ── PASSWORD GATE ─────────────────────────────────────────────────────────────
+const SITE_PW = 'Arddun2026';
+function checkPw() {
+  const val = document.getElementById('pw-input').value;
+  if (val === SITE_PW) {
+    sessionStorage.setItem('arddun_auth', '1');
+    document.getElementById('pw-gate').style.display = 'none';
+  } else {
+    document.getElementById('pw-error').textContent = 'Incorrect password';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+    setTimeout(() => { document.getElementById('pw-error').textContent = ''; }, 2000);
+  }
+}
+// Show gate if not authenticated
+(function() {
+  if (sessionStorage.getItem('arddun_auth') !== '1') {
+    document.getElementById('pw-gate').style.display = 'flex';
+  }
+})();
 </script>
 
 <div id="edit-pin-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center">
@@ -2924,6 +2945,22 @@ function checkEpPin() {
       <button class="pin-btn" onclick="epPinPress('0')">0</button>
       <button class="pin-btn" onclick="document.getElementById('edit-pin-overlay').style.display='none'">✕</button>
     </div>
+  </div>
+</div>
+
+<!-- PASSWORD GATE -->
+<div id="pw-gate" style="display:none;position:fixed;inset:0;background:#1B2D5B;z-index:99999;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;">
+  <div style="font-family:'DM Serif Display',Georgia,serif;font-size:2.4rem;color:#fff;letter-spacing:0.06em">Arddun</div>
+  <div style="font-family:Arial,sans-serif;font-size:0.7rem;color:rgba(255,255,255,0.4);letter-spacing:0.2em;text-transform:uppercase;margin-top:-1rem">Staff Wardrobe</div>
+  <div style="margin-top:0.5rem;display:flex;flex-direction:column;gap:0.75rem;width:280px">
+    <input id="pw-input" type="password" placeholder="Enter password"
+      style="width:100%;padding:0.75rem 1rem;border:1px solid rgba(255,255,255,0.2);border-radius:3px;background:rgba(255,255,255,0.08);color:#fff;font-family:Arial,sans-serif;font-size:0.9rem;outline:none;letter-spacing:0.05em"
+      onkeydown="if(event.key==='Enter')checkPw()" />
+    <button onclick="checkPw()"
+      style="width:100%;padding:0.75rem;background:#fff;color:#1B2D5B;border:none;border-radius:3px;font-family:Arial,sans-serif;font-size:0.8rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer">
+      Enter
+    </button>
+    <div id="pw-error" style="text-align:center;font-size:0.65rem;color:#e74c3c;letter-spacing:0.08em;text-transform:uppercase;height:1rem"></div>
   </div>
 </div>
 </body>
