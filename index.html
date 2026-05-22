@@ -2744,7 +2744,7 @@ function importConfirm() {
     return;
   }
 
-  apiPost({ action:'importItems', pin:ADMIN_PIN, items: liveItems.slice(-added) })
+  apiPost({ action:'importItems', pin:ADMIN_PIN, items: JSON.stringify(liveItems.slice(-added)) })
     .then(() => { localStorage.removeItem('arddun_wardrobe_cache'); setTimeout(loadData, 1500); })
     .catch(e => console.warn('Import save failed:', e))
   importClear();
