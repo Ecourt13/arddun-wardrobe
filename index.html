@@ -2922,8 +2922,8 @@ function checkPw() {
 }
 // Show gate if not authenticated
 (function() {
-  if (sessionStorage.getItem('arddun_auth') !== '1') {
-    document.getElementById('pw-gate').style.display = 'flex';
+  if (sessionStorage.getItem('arddun_auth') === '1') {
+    document.getElementById('pw-gate').style.display = 'none';
   }
 })();
 </script>
@@ -2949,7 +2949,7 @@ function checkPw() {
 </div>
 
 <!-- PASSWORD GATE -->
-<div id="pw-gate" style="display:none;position:fixed;inset:0;background:#1B2D5B;z-index:99999;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;">
+<div id="pw-gate" style="display:flex;position:fixed;inset:0;background:#1B2D5B;z-index:99999;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;">
   <div style="font-family:'DM Serif Display',Georgia,serif;font-size:2.4rem;color:#fff;letter-spacing:0.06em">Arddun</div>
   <div style="font-family:Arial,sans-serif;font-size:0.7rem;color:rgba(255,255,255,0.4);letter-spacing:0.2em;text-transform:uppercase;margin-top:-1rem">Staff Wardrobe</div>
   <div style="margin-top:0.5rem;display:flex;flex-direction:column;gap:0.75rem;width:280px">
