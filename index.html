@@ -1430,7 +1430,7 @@
       </div>
       <div class="form-field">
         <label class="form-label">Your Name</label>
-        <input type="text" class="form-input" id="res-name" placeholder="Full name" />
+        <select class="form-input" id="res-name" style="cursor:pointer;background:#fff"><option value="">Select your name...</option></select>
       </div>
       <div class="form-row">
         <div class="form-field">
@@ -1997,6 +1997,7 @@ function loadTeamIntoSelect() {
     sel.innerHTML = '<option value="">Select your name...</option>' + names.map(n => "<option value='" + n + "'>" + n + "</option>").join("");
   }).catch(e => console.warn("Team load failed", e));
 }
+function loadTeamIntoSelect() { apiGet("getTeam").then(function(names) { var sel = document.getElementById("res-name"); if (!sel) return; var opts = "<option value=''>Select your name...</option>"; for (var i=0; i<names.length; i++) { opts += "<option value='" + names[i] + "'>" + names[i] + "</option>"; } sel.innerHTML = opts; }).catch(function(e){ console.warn(e); }); }
 function openModal(brand, item, colour, size, itemId) {
   pendingReserve = { brand, item, colour, size, itemId };
   document.getElementById('modal-item-name').textContent = toTitleCase(item);
@@ -2006,6 +2007,7 @@ function openModal(brand, item, colour, size, itemId) {
   document.getElementById('res-date-in').value = '';
   document.getElementById('res-reason').value = '';
   document.getElementById('modal').classList.add('open');
+  loadTeamIntoSelect();
   loadTeamIntoSelect();
 }
 
