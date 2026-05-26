@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1779798656671 --><!-- v1779461967788 --><!-- v1779461508489 -->
+<!DOCTYPE html><!-- v1779799555039 --><!-- v1779461967788 --><!-- v1779461508489 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1989,14 +1989,13 @@ function closeEditModalOutside(e) {
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 let liveTeam = [];
-async function loadTeam() {
-  try {
-    liveTeam = await apiGet("getTeam");
+function loadTeamIntoSelect() {
+  apiGet("getTeam").then(names => {
+    liveTeam = names;
     const sel = document.getElementById("res-name");
-    if (sel && liveTeam.length) {
-      sel.innerHTML = '<option value="">Select your name…</option>' + liveTeam.map(n => `<option value="${n}">${n}</option>`).join("");
-    }
-  } catch(e) { console.warn("Could not load team", e); }
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Select your name...</option>' + names.map(n => "<option value='" + n + "'>" + n + "</option>").join("");
+  }).catch(e => console.warn("Team load failed", e));
 }
 function openModal(brand, item, colour, size, itemId) {
   pendingReserve = { brand, item, colour, size, itemId };
@@ -2007,7 +2006,7 @@ function openModal(brand, item, colour, size, itemId) {
   document.getElementById('res-date-in').value = '';
   document.getElementById('res-reason').value = '';
   document.getElementById('modal').classList.add('open');
-  loadTeam();
+  loadTeamIntoSelect();
 }
 
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
