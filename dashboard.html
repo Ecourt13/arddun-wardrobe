@@ -421,9 +421,13 @@
       <div class="panel-title">Currently On Loan</div>
       <span class="panel-count" id="loan-count"></span>
     </div>
-    <div class="filter-bar">
+    <div class="filter-bar" style="flex-wrap:wrap;gap:0.5rem;padding:0.75rem 1.25rem;border-bottom:1px solid var(--rule)">
       <button class="filter-btn active" onclick="setLoanFilter('all',this)">All</button>
       <button class="filter-btn late-btn" onclick="setLoanFilter('late',this)">Overdue only</button>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:0.5rem">
+        <span style="font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">Filter by person</span>
+        <select id="person-filter" onchange="setPersonFilter(this.value)" style="font-family:'DM Mono',monospace;font-size:0.62rem;padding:4px 10px;border:1px solid var(--rule);border-radius:2px;background:#fff;color:var(--ink);cursor:pointer;outline:none"><option value="">Everyone</option></select>
+      </div>
     </div>
     <div class="panel-body">
       <table class="dash-table">
@@ -564,6 +568,7 @@ async function loadData() {
     document.getElementById('main').style.display = 'block';
     document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     render();
+  populatePersonFilter();
   } catch(e) {
     document.getElementById('loading').querySelector('.loading-text').textContent = 'Failed to load — check connection';
   }
@@ -671,7 +676,8 @@ function render() {
 }
 
 function renderLoanTable(onLoan) {
-  const filtered = loanFilter === 'late' ? onLoan.filter(i=>isLate(i.dateIn)) : onLoan;
+  let filtered = loanFilter === 'late' ? onLoan.filter(i=>isLate(i.dateIn)) : onLoan;
+  if (personFilter) filtered = filtered.filter(i => i.teamMember === personFilter);
   document.getElementById('loan-count').textContent = filtered.length + ' item' + (filtered.length!==1?'s':'');
   const tbody = document.getElementById('loan-tbody');
   tbody.innerHTML = filtered.length ? filtered.map(i => {
@@ -688,6 +694,18 @@ function renderLoanTable(onLoan) {
   }).join('') : '<tr><td colspan="7"><div class="empty-state">No items currently on loan</div></td></tr>';
 }
 
+let personFilter = "";
+function setPersonFilter(val) {
+  personFilter = val;
+  const onLoan = allItems.filter(i => String(i.status||"").toUpperCase() === "OUT");
+  renderLoanTable(onLoan);
+}
+function populatePersonFilter() {
+  const sel = document.getElementById("person-filter");
+  if (!sel) return;
+  const people = [...new Set(allItems.filter(i => String(i.status||"").toUpperCase() === "OUT" && i.teamMember).map(i => i.teamMember))].sort();
+  sel.innerHTML = '<option value="">Everyone</option>' + people.map(p => `<option value="${p}">${p}</option>`).join("");
+}
 function setLoanFilter(f, btn) {
   loanFilter = f;
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
