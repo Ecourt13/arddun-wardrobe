@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1781093489133 --><!-- v1779799555039 --><!-- v1779461967788 --><!-- v1779461508489 -->
+<!DOCTYPE html><!-- v1781093702352 --><!-- v1781093489133 --><!-- v1779799555039 --><!-- v1779461967788 --><!-- v1779461508489 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1643,6 +1643,12 @@ const hardcodedImages = {
 
 // logo is text-based
 
+function populateBrandFilters() {
+  const brands = [...new Set(liveItems.map(i => i.brand).filter(Boolean))].sort();
+  const container = document.getElementById("brand-filter-btns");
+  if (!container) return;
+  container.innerHTML = brands.map(b => "<button class=\"filter-btn\" data-filter=\"brand\" data-value=\"" + b + "\" onclick=\"setFilter('brand','" + b + "',this)\">" + b + "</button>").join("");
+}
 function populateImageCache() {
   // First use any custom images from the sheet
   liveItems.forEach(item => {
