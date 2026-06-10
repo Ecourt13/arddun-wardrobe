@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1781093702352 --><!-- v1781093489133 --><!-- v1779799555039 --><!-- v1779461967788 --><!-- v1779461508489 -->
+<!DOCTYPE html><!-- v1781094321779 --><!-- v1781093702352 --><!-- v1781093489133 --><!-- v1779799555039 --><!-- v1779461967788 --><!-- v1779461508489 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1646,7 +1646,23 @@ const hardcodedImages = {
 function populateBrandFilters() {
   const brands = [...new Set(liveItems.map(i => i.brand).filter(Boolean))].sort();
   const container = document.getElementById("brand-filter-btns");
-  if (!container) return;
+  if (!container) {
+    const ph5 = Array.from(document.querySelectorAll("[data-filter=brand]")).find(b => b.getAttribute("data-value") === "PH5");
+    if (ph5) {
+      const parent = ph5.parentElement;
+      Array.from(parent.querySelectorAll("[data-filter=brand]:not([data-value=all])")).forEach(b => b.remove());
+      brands.forEach(b => {
+        const btn = document.createElement("button");
+        btn.className = "filter-btn";
+        btn.setAttribute("data-filter","brand");
+        btn.setAttribute("data-value",b);
+        btn.setAttribute("onclick","setFilter('brand','" + b + "',this)");
+        btn.textContent = b;
+        parent.appendChild(btn);
+      });
+    }
+    return;
+  }
   container.innerHTML = brands.map(b => "<button class=\"filter-btn\" data-filter=\"brand\" data-value=\"" + b + "\" onclick=\"setFilter('brand','" + b + "',this)\">" + b + "</button>").join("");
 }
 function populateImageCache() {
