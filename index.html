@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1781160208555 --><!-- v1781160078142 --><!-- v1781159843692 --><!-- v1781158834419 --><!-- v1781158655435 --><!-- v1781095498738 --><!-- v1781094725915 --><!-- v1781094564415 --><!-- v1781094321779 --><!-- v1781093702352 --><!-- v1781093489133 --><!-- v1779799555039 --><!-- v1779461967788 --><!-- v1779461508489 -->
+<!DOCTYPE html><!-- v1781160647328 --><!-- v1781160208555 --><!-- v1781160078142 --><!-- v1781159843692 --><!-- v1781158834419 --><!-- v1781158655435 --><!-- v1781095498738 --><!-- v1781094725915 --><!-- v1781094564415 --><!-- v1781094321779 --><!-- v1781093702352 --><!-- v1781093489133 --><!-- v1779799555039 --><!-- v1779461967788 --><!-- v1779461508489 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1267,14 +1267,7 @@
   .avail-until-btn { width: auto !important; min-width: 130px !important; max-width: none !important; white-space: nowrap !important; overflow: visible !important; padding: 5px 10px !important; font-size: 0.58rem !important; background: #1B2D5B !important; color: #fff !important; border-radius: 2px !important; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
-function populateBrandSelect() {
-  var sel = document.getElementById("brand-select");
-  if (!sel) return;
-  var brands = [];
-  liveItems.forEach(function(i) { if (i.brand && brands.indexOf(i.brand) === -1) brands.push(i.brand); });
-  brands.sort();
-  sel.innerHTML = "<option value='all'>All Brands</option>" + brands.map(function(b) { return "<option value='" + b + "'>" + b + "</option>"; }).join("");
-}
+
 
 function populateBrandSelect() { var sel = document.getElementById("brand-select"); if (!sel) return; var seen = {}; var brands = []; liveItems.forEach(function(i) { if (i.brand && !seen[i.brand]) { seen[i.brand] = 1; brands.push(i.brand); } }); brands.sort(); sel.innerHTML = "<option value='all'>All Brands</option>" + brands.map(function(b) { return "<option value='" + b + "'>" + b + "</option>"; }).join(""); }
 </script>
