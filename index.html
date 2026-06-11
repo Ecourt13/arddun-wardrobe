@@ -2787,6 +2787,25 @@ function processImportFile(file) {
         // Stop at totals row
         if (itemName.includes('TOTAL') || itemName.includes('SUBTOTAL')) break;
 
+        // Universal format: SIZE column has the size value directly
+        if (format === 'universal') {
+          const sizeColIdx = headers.indexOf('SIZE');
+          const sizeVal = sizeColIdx >= 0 ? String(row[sizeColIdx]||'').trim().toUpperCase() : '';
+          if (sizeVal) {
+            parsed.push({
+              brand: rowBrand || detectedBrand,
+              item: itemName,
+              image: rowImage,
+              colour: colour,
+              size: sizeVal,
+              season: season,
+              status: 'IN STORAGE',
+              clean: 'YES'
+            });
+          }
+          continue;
+        }
+
         for (const { label, idx } of sizeCols) {
           const qty = parseFloat(row[idx]) || 0;
           if (qty > 0) {
