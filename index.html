@@ -1328,10 +1328,10 @@ function populateBrandSelect() { var sel = document.getElementById("brand-select
   </div>
   <div class="divider"></div>
   <span class="filter-label">Brand</span>
-  <div class="filter-group" id="brand-filters"><select id="brand-select" onchange="setFilter('brand',this.value,this)" style="font-family:inherit;font-size:0.72rem;padding:5px 10px;border:1px solid #ddd;border-radius:3px;background:#fff;cursor:pointer;outline:none"><option value="all">All Brands</option></select>
-    <select onchange="setFilter('brand',this.value,this)" id="brand-select" style="font-family:inherit;font-size:0.72rem;padding:5px 10px;border:1px solid #ddd;border-radius:3px;background:#fff;cursor:pointer;outline:none">  <option value="all">All Brands</option></select>
-    
-    
+  <div class="filter-group" id="brand-filters">
+    <select id="brand-select" onchange="setFilter('brand',this.value,this)" style="font-family:inherit;font-size:0.72rem;padding:5px 10px;border:1px solid #ddd;border-radius:3px;background:#fff;cursor:pointer;outline:none">
+      <option value="all">All Brands</option>
+    </select>
   </div>
   <div class="divider"></div>
   <span class="filter-label">Size</span>
@@ -3026,6 +3026,7 @@ async function loadData() {
 
     showLoadingOverlay(false);
     populateImageCache();
+    populateBrandSelect();
     updateResBadge();
     renderCatalogue();
 
