@@ -1644,6 +1644,13 @@ const hardcodedImages = {
 // logo is text-based
 
 function populateImageCache() {
+  // Use custom images from sheet first
+  liveItems.forEach(function(item) {
+    if (item.image) {
+      var key = item.brand + '|' + item.item + '|' + item.colour;
+      imageCache[key] = item.image;
+    }
+  });
   // Build imageCache from hardcodedImages keyed by item name
   for (const [itemName, src] of Object.entries(hardcodedImages)) {
     // Store under both brand prefixes so lookup works
@@ -2941,6 +2948,7 @@ async function loadData() {
       dateIn:     r.dateIn     || null,
       reason:     r.reason     || null,
       notes:      r.notes      || null,
+    image:      r.image      || null,
     }));
 
     // Map Loans sheet → itemHistory
