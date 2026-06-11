@@ -1325,9 +1325,9 @@
   <div class="divider"></div>
   <span class="filter-label">Brand</span>
   <div class="filter-group" id="brand-filters">
-    <button class="filter-chip active" data-filter="brand" data-value="all" onclick="setFilter('brand','all',this)">All</button>
-    <button class="filter-chip" data-filter="brand" data-value="PH5" onclick="setFilter('brand','PH5',this)">PH5</button>
-    <button class="filter-chip" data-filter="brand" data-value="Faithfull" onclick="setFilter('brand','Faithfull',this)">Faithfull</button>
+    <select id="brand-select" onchange="setFilter('brand',this.value,this)" style="font-family:inherit;font-size:0.72rem;padding:5px 10px;border:1px solid #ddd;border-radius:3px;background:#fff;cursor:pointer;outline:none">
+      <option value="all">All Brands</option>
+    </select>
   </div>
   <div class="divider"></div>
   <span class="filter-label">Size</span>
@@ -2969,6 +2969,7 @@ async function loadData() {
 
     showLoadingOverlay(false);
     populateImageCache();
+    populateBrandSelect();
     updateResBadge();
     renderCatalogue();
 
@@ -3031,6 +3032,16 @@ function checkPw() {
     document.getElementById('pw-gate').style.display = 'none';
   }
 })();
+
+function populateBrandSelect() {
+  var sel = document.getElementById('brand-select');
+  if (!sel) return;
+  var seen = {};
+  var brands = [];
+  liveItems.forEach(function(i) { if (i.brand && !seen[i.brand]) { seen[i.brand] = 1; brands.push(i.brand); } });
+  brands.sort();
+  sel.innerHTML = '<option value="all">All Brands</option>' + brands.map(function(b) { return '<option value="' + b + '">' + b + '</option>'; }).join('');
+}
 </script>
 
 <div id="edit-pin-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center">
