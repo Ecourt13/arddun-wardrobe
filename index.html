@@ -2700,7 +2700,7 @@ function processImportFile(file) {
         return;
       }
 
-      const headers = rows[headerRow].map(h => String(h).trim().toUpperCase());
+      const headers = rows[headerRow].map(h => String(h||'').trim().toUpperCase().replace(/[^A-Z]/g,''));
       const parsed = [];
 
       // Detect brand from sheet content
