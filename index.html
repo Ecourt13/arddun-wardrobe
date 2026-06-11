@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1781159843692 --><!-- v1781158834419 --><!-- v1781158655435 --><!-- v1781095498738 --><!-- v1781094725915 --><!-- v1781094564415 --><!-- v1781094321779 --><!-- v1781093702352 --><!-- v1781093489133 --><!-- v1779799555039 --><!-- v1779461967788 --><!-- v1779461508489 -->
+<!DOCTYPE html><!-- v1781160078142 --><!-- v1781159843692 --><!-- v1781158834419 --><!-- v1781158655435 --><!-- v1781095498738 --><!-- v1781094725915 --><!-- v1781094564415 --><!-- v1781094321779 --><!-- v1781093702352 --><!-- v1781093489133 --><!-- v1779799555039 --><!-- v1779461967788 --><!-- v1779461508489 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1275,6 +1275,8 @@ function populateBrandSelect() {
   brands.sort();
   sel.innerHTML = "<option value='all'>All Brands</option>" + brands.map(function(b) { return "<option value='" + b + "'>" + b + "</option>"; }).join("");
 }
+
+function populateBrandSelect() { var sel = document.getElementById("brand-select"); if (!sel) return; var seen = {}; var brands = []; liveItems.forEach(function(i) { if (i.brand && !seen[i.brand]) { seen[i.brand] = 1; brands.push(i.brand); } }); brands.sort(); sel.innerHTML = "<option value='all'>All Brands</option>" + brands.map(function(b) { return "<option value='" + b + "'>" + b + "</option>"; }).join(""); }
 </script>
 </head>
 <body>
@@ -1333,7 +1335,7 @@ function populateBrandSelect() {
   </div>
   <div class="divider"></div>
   <span class="filter-label">Brand</span>
-  <div class="filter-group" id="brand-filters">
+  <div class="filter-group" id="brand-filters"><select id="brand-select" onchange="setFilter('brand',this.value,this)" style="font-family:inherit;font-size:0.72rem;padding:5px 10px;border:1px solid #ddd;border-radius:3px;background:#fff;cursor:pointer;outline:none"><option value="all">All Brands</option></select>
     <select onchange="setFilter('brand',this.value,this)" id="brand-select" style="font-family:inherit;font-size:0.72rem;padding:5px 10px;border:1px solid #ddd;border-radius:3px;background:#fff;cursor:pointer;outline:none">  <option value="all">All Brands</option></select>
     
     
