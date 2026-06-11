@@ -3089,7 +3089,7 @@ function checkPw() {
   const val = document.getElementById('pw-input').value;
   if (val === SITE_PW) {
     sessionStorage.setItem('arddun_auth', '1');
-    document.getElementById('pw-gate').style.display = 'none';
+    const _gate = document.getElementById('pw-gate'); if (_gate) _gate.style.display = 'none';
   } else {
     document.getElementById('pw-error').textContent = 'Incorrect password';
     document.getElementById('pw-input').value = '';
@@ -3100,7 +3100,7 @@ function checkPw() {
 // Show gate if not authenticated
 (function() {
   if (sessionStorage.getItem('arddun_auth') === '1') {
-    document.getElementById('pw-gate').style.display = 'none';
+    const _gate = document.getElementById('pw-gate'); if (_gate) _gate.style.display = 'none';
   }
 })();
 
