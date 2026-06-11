@@ -2664,8 +2664,18 @@ function processImportFile(file) {
         }
       }
 
+      // Also check for universal Arddun template format
       if (headerRow === -1) {
-        showImportStatus('⚠ Could not recognise this file format. Expected a PH5 or Faithfull the Brand order sheet.', '#c45c3a');
+        for (let i = 0; i < Math.min(rows.length, 5); i++) {
+          const rowStr = rows[i].join('|').toUpperCase();
+          if (rowStr.includes('BRAND') && rowStr.includes('ITEM') && rowStr.includes('COLOUR') && rowStr.includes('SIZE')) {
+            headerRow = i; format = 'universal'; break;
+          }
+        }
+      }
+
+      if (headerRow === -1) {
+        showImportStatus('⚠ Could not recognise this file format. Please use the Arddun import template.', '#c45c3a');
         return;
       }
 
@@ -2686,6 +2696,17 @@ function processImportFile(file) {
           if (rowStr.includes('PH5')) { detectedBrand = 'PH5'; break; }
         }
       }
+      
+      // For universal format, read brand from BRAND column
+      if (format === 'universal' && detectedBrand === 'Unknown') {
+        const brandColIdx = headers.indexOf('BRAND');
+        if (brandColIdx >= 0) {
+          for (let i = headerRow + 1; i < rows.length; i++) {
+            const b = String(rows[i][brandColIdx]||'').trim();
+            if (b) { detectedBrand = b; break; }
+          }
+        }
+      }
       // Also check all rows if still unknown
       if (detectedBrand === 'Unknown') {
         const allStr = rows.flat().join(' ').toUpperCase();
@@ -2696,8 +2717,9 @@ function processImportFile(file) {
       // Column helpers
       const col = (name) => {
         const aliases = {
-          'STYLE NAME': ['STYLE NAME','PRODUCT DESCRIPTION'],
+          'STYLE NAME': ['STYLE NAME','PRODUCT DESCRIPTION','ITEM'],
           'COLOR': ['COLOR','COLOUR'],
+          'BRAND': ['BRAND'],
           'XXS': ['XXS','US0/AU4/XXS'],
           'XS':  ['XS','US2/AU6/XS'],
           'S':   ['S','US4/AU8/S'],
