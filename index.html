@@ -2683,10 +2683,13 @@ function processImportFile(file) {
       }
 
       // Also check for universal Arddun template format
+      // Check individual cells (not joined) to avoid matching instruction text
       if (headerRow === -1) {
-        for (let i = 0; i < Math.min(rows.length, 5); i++) {
-          const rowStr = rows[i].join('|').toUpperCase();
-          if (rowStr.includes('BRAND') && rowStr.includes('ITEM') && rowStr.includes('COLOUR') && rowStr.includes('SIZE')) {
+        for (let i = 0; i < Math.min(rows.length, 6); i++) {
+          const cells = rows[i].map(function(c) { return String(c||'').trim().toUpperCase(); });
+          if (cells.indexOf('BRAND') >= 0 && cells.indexOf('ITEM') >= 0 && 
+              (cells.indexOf('COLOUR') >= 0 || cells.indexOf('COLOR') >= 0) && 
+              cells.indexOf('SIZE') >= 0) {
             headerRow = i; format = 'universal'; break;
           }
         }
