@@ -2686,7 +2686,7 @@ function processImportFile(file) {
       // Check individual cells (not joined) to avoid matching instruction text
       if (headerRow === -1) {
         for (let i = 0; i < Math.min(rows.length, 6); i++) {
-          const cells = rows[i].map(function(c) { return String(c||'').trim().toUpperCase(); });
+          const cells = rows[i].map(function(c) { return String(c||'').trim().toUpperCase().replace(/[^A-Z]/g,''); });
           if (cells.indexOf('BRAND') >= 0 && cells.indexOf('ITEM') >= 0 && 
               (cells.indexOf('COLOUR') >= 0 || cells.indexOf('COLOR') >= 0) && 
               cells.indexOf('SIZE') >= 0) {
