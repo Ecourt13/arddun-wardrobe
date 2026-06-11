@@ -2738,6 +2738,7 @@ function processImportFile(file) {
 
       const nameCol   = col('STYLE NAME');
       const colorCol  = col('COLOR');
+      const brandCol  = col('BRAND');
       const sizeXXS   = col('XXS');
       const sizeXS    = col('XS');
       const sizeS     = col('S');
@@ -2762,6 +2763,7 @@ function processImportFile(file) {
         const row = rows[i];
         const itemName = String(row[nameCol] || '').trim().toUpperCase();
         const colour   = String(row[colorCol] || '').trim().toUpperCase();
+        const rowBrand = brandCol >= 0 && row[brandCol] ? String(row[brandCol]).trim() : detectedBrand;
         if (!itemName || itemName === 'NAN' || !colour) continue;
         // Stop at totals row
         if (itemName.includes('TOTAL') || itemName.includes('SUBTOTAL')) break;
@@ -2771,7 +2773,7 @@ function processImportFile(file) {
           if (qty > 0) {
             for (let q = 0; q < qty; q++) {
               parsed.push({
-                brand: detectedBrand,
+                brand: rowBrand || detectedBrand,
                 item: itemName,
                 colour: colour,
                 size: label,
