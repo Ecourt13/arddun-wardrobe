@@ -2647,6 +2647,24 @@ function processImportFile(file) {
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
+      // Extract embedded images - keyed by row index
+      const extractedImages = {};
+      try {
+        const sheetImages = sheet['!images'] || [];
+        sheetImages.forEach(function(img, idx) {
+          try {
+            const ext = (img.type || 'jpeg').replace('jpg','jpeg');
+            const bytes = new Uint8Array(img.data);
+            let binary = '';
+            bytes.forEach(function(b) { binary += String.fromCharCode(b); });
+            const b64 = btoa(binary);
+            // anchor row tells us which data row this image belongs to
+            const anchorRow = img.position && img.position.r !== undefined ? img.position.r : idx;
+            extractedImages[anchorRow] = 'data:image/' + ext + ';base64,' + b64;
+          } catch(e) {}
+        });
+      } catch(e) { console.warn('Image extraction:', e); }
+
       // Detect format — find header row (contains "Style Name" or "PRODUCT DESCRIPTION")
       let headerRow = -1;
       let format = null;
@@ -2764,6 +2782,7 @@ function processImportFile(file) {
         const itemName = String(row[nameCol] || '').trim().toUpperCase();
         const colour   = String(row[colorCol] || '').trim().toUpperCase();
         const rowBrand = brandCol >= 0 && row[brandCol] ? String(row[brandCol]).trim() : detectedBrand;
+        const rowImage = extractedImages[i] || extractedImages[i - headerRow - 1] || null;
         if (!itemName || itemName === 'NAN' || !colour) continue;
         // Stop at totals row
         if (itemName.includes('TOTAL') || itemName.includes('SUBTOTAL')) break;
@@ -2775,6 +2794,7 @@ function processImportFile(file) {
               parsed.push({
                 brand: rowBrand || detectedBrand,
                 item: itemName,
+                image: rowImage,
                 colour: colour,
                 size: label,
                 season: season,
