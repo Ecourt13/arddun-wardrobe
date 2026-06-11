@@ -1726,7 +1726,7 @@ function renderCatalogue() {
   document.getElementById('stat-available').textContent = liveItems.filter(i=>i.status==='IN STORAGE').length;
   document.getElementById('stat-out').textContent = liveItems.filter(i=>i.status==='OUT').length;
 
-  const brands = ['PH5','Faithfull'];
+  const brands = [...new Set(grouped.map(g => g.brand))].sort();
   let html = '';
 
   for (const brand of brands) {
