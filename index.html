@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1781160647328 --><!-- v1781160208555 --><!-- v1781160078142 --><!-- v1781159843692 --><!-- v1781158834419 --><!-- v1781158655435 --><!-- v1781095498738 --><!-- v1781094725915 --><!-- v1781094564415 --><!-- v1781094321779 --><!-- v1781093702352 --><!-- v1781093489133 --><!-- v1779799555039 --><!-- v1779461967788 --><!-- v1779461508489 -->
+<!DOCTYPE html><!-- v1779461967788 --><!-- v1779461508489 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1266,11 +1266,7 @@
   }
   .avail-until-btn { width: auto !important; min-width: 130px !important; max-width: none !important; white-space: nowrap !important; overflow: visible !important; padding: 5px 10px !important; font-size: 0.58rem !important; background: #1B2D5B !important; color: #fff !important; border-radius: 2px !important; }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
-
-
-function populateBrandSelect() { var sel = document.getElementById("brand-select"); if (!sel) return; var seen = {}; var brands = []; liveItems.forEach(function(i) { if (i.brand && !seen[i.brand]) { seen[i.brand] = 1; brands.push(i.brand); } }); brands.sort(); sel.innerHTML = "<option value='all'>All Brands</option>" + brands.map(function(b) { return "<option value='" + b + "'>" + b + "</option>"; }).join(""); }
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -1329,9 +1325,9 @@ function populateBrandSelect() { var sel = document.getElementById("brand-select
   <div class="divider"></div>
   <span class="filter-label">Brand</span>
   <div class="filter-group" id="brand-filters">
-    <select id="brand-select" onchange="setFilter('brand',this.value,this)" style="font-family:inherit;font-size:0.72rem;padding:5px 10px;border:1px solid #ddd;border-radius:3px;background:#fff;cursor:pointer;outline:none">
-      <option value="all">All Brands</option>
-    </select>
+    <button class="filter-chip active" data-filter="brand" data-value="all" onclick="setFilter('brand','all',this)">All</button>
+    <button class="filter-chip" data-filter="brand" data-value="PH5" onclick="setFilter('brand','PH5',this)">PH5</button>
+    <button class="filter-chip" data-filter="brand" data-value="Faithfull" onclick="setFilter('brand','Faithfull',this)">Faithfull</button>
   </div>
   <div class="divider"></div>
   <span class="filter-label">Size</span>
@@ -1434,7 +1430,7 @@ function populateBrandSelect() { var sel = document.getElementById("brand-select
       </div>
       <div class="form-field">
         <label class="form-label">Your Name</label>
-        <select class="form-input" id="res-name" style="cursor:pointer;background:#fff"><option value="">Select your name...</option></select>
+        <input type="text" class="form-input" id="res-name" placeholder="Full name" />
       </div>
       <div class="form-row">
         <div class="form-field">
@@ -1588,7 +1584,7 @@ function populateBrandSelect() { var sel = document.getElementById("brand-select
 <div class="toast" id="toast"></div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyMQEIkYjAeozBhv9g4trDpWJrXmEZdSfuXy_JLJOPKnWVUZx--CKFnK0cVFHZ2ICep4A/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxdZm3KN1rpN4E4RudibpkSwBUGH4GZsgdd2Mjj9BtNKVBvVlZvd8J3dbnP0ga3uDvtPw/exec';
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let liveItems = [];
@@ -1647,49 +1643,8 @@ const hardcodedImages = {
 
 // logo is text-based
 
-function setBrandFilter(val) {
-  currentFilters.brand = val === "all" ? null : val;
-  renderCatalogue();
-}
-function populateBrandFilters() {
-  const sel = document.getElementById("brand-select");
-  if (!sel) return;
-  const brands = [...new Set(liveItems.map(i => i.brand).filter(Boolean))].sort();
-  sel.innerHTML = "<option value='all'>All</option>" + brands.map(b => "<option value='" + b + "'>" + b + "</option>").join("");
-  // Set current selection
-  if (currentFilters.brand) sel.value = currentFilters.brand;
-}
-function populateBrandFilters_old() {
-  const brands = [...new Set(liveItems.map(i => i.brand).filter(Boolean))].sort();
-  const container = document.getElementById("brand-filter-btns");
-  if (!container) {
-    const ph5 = Array.from(document.querySelectorAll("[data-filter=brand]")).find(b => b.getAttribute("data-value") === "PH5");
-    if (ph5) {
-      const parent = ph5.parentElement;
-      Array.from(parent.querySelectorAll("[data-filter=brand]:not([data-value=all])")).forEach(b => b.remove());
-      brands.forEach(b => {
-        const btn = document.createElement("button");
-        btn.className = "filter-chip";
-        btn.setAttribute("data-filter","brand");
-        btn.setAttribute("data-value",b);
-        btn.setAttribute("onclick","setFilter('brand','" + b + "',this)");
-        btn.textContent = b;
-        parent.appendChild(btn);
-      });
-    }
-    return;
-  }
-  container.innerHTML = brands.map(b => "<button class=\"filter-btn\" data-filter=\"brand\" data-value=\"" + b + "\" onclick=\"setFilter('brand','" + b + "',this)\">" + b + "</button>").join("");
-}
 function populateImageCache() {
-  // First use any custom images from the sheet
-  liveItems.forEach(item => {
-    if (item.image) {
-      const key = item.brand + "|" + item.item + "|" + item.colour;
-      imageCache[key] = item.image;
-    }
-  });
-  // Then fill in from hardcodedImages for anything not already set
+  // Build imageCache from hardcodedImages keyed by item name
   for (const [itemName, src] of Object.entries(hardcodedImages)) {
     // Store under both brand prefixes so lookup works
     imageCache['PH5|' + itemName] = src;
@@ -2033,16 +1988,6 @@ function closeEditModalOutside(e) {
 }
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
-let liveTeam = [];
-function loadTeamIntoSelect() {
-  apiGet("getTeam").then(names => {
-    liveTeam = names;
-    const sel = document.getElementById("res-name");
-    if (!sel) return;
-    sel.innerHTML = '<option value="">Select your name...</option>' + names.map(n => "<option value='" + n + "'>" + n + "</option>").join("");
-  }).catch(e => console.warn("Team load failed", e));
-}
-function loadTeamIntoSelect() { apiGet("getTeam").then(function(names) { var sel = document.getElementById("res-name"); if (!sel) return; var opts = "<option value=''>Select your name...</option>"; for (var i=0; i<names.length; i++) { opts += "<option value='" + names[i] + "'>" + names[i] + "</option>"; } sel.innerHTML = opts; }).catch(function(e){ console.warn(e); }); }
 function openModal(brand, item, colour, size, itemId) {
   pendingReserve = { brand, item, colour, size, itemId };
   document.getElementById('modal-item-name').textContent = toTitleCase(item);
@@ -2052,8 +1997,6 @@ function openModal(brand, item, colour, size, itemId) {
   document.getElementById('res-date-in').value = '';
   document.getElementById('res-reason').value = '';
   document.getElementById('modal').classList.add('open');
-  loadTeamIntoSelect();
-  loadTeamIntoSelect();
 }
 
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
@@ -3026,7 +2969,6 @@ async function loadData() {
 
     showLoadingOverlay(false);
     populateImageCache();
-    populateBrandSelect();
     updateResBadge();
     renderCatalogue();
 
