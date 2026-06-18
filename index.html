@@ -1742,8 +1742,9 @@ function renderCatalogue() {
       <div class="items-grid">`;
 
     for (const group of brandGroups) {
-      const imgKey = `${group.brand}|${group.item}`;
-      const imgSrc = imageCache[imgKey] || imageCache[`${group.brand.toUpperCase()}|${group.item}`] || imageCache[`FAITHFULL|${group.item}`] || imageCache[`PH5|${group.item}`];
+      const imgKey = `${group.brand}|${group.item}|${group.colour}`;
+      const imgKeyNoColour = `${group.brand}|${group.item}`;
+      const imgSrc = imageCache[imgKey] || imageCache[imgKeyNoColour] || imageCache[`${group.brand.toUpperCase()}|${group.item}`] || imageCache[`FAITHFULL|${group.item}`] || imageCache[`PH5|${group.item}`];
       const allOut = group.sizes.every(s => s.status === 'OUT');
       const someRequested = group.sizes.some(s => s.status === 'REQUESTED');
       const someCleaning = group.sizes.some(s => s.status === 'CLEANING');
