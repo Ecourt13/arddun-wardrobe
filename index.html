@@ -1676,7 +1676,7 @@ function setFilter(type, value, btn) {
   filters[type] = value;
   const group = document.querySelectorAll(`[data-filter="${type}"]`);
   group.forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn && btn.classList) btn.classList.add('active');
   renderCatalogue();
 }
 
