@@ -1733,7 +1733,7 @@ function renderCatalogue() {
     const brandGroups = grouped.filter(g => g.brand === brand);
     if (brandGroups.length === 0) continue;
 
-    const brandDisplay = brand === 'Faithfull' ? 'Faithfull the Brand' : 'PH5';
+    const brandDisplay = brand === 'Faithfull' ? 'Faithfull the Brand' : brand;
     html += `<div class="brand-section" data-brand="${brand}">
       <div class="brand-header">
         <div class="brand-name">${brandDisplay}</div>
