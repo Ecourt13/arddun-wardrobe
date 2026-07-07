@@ -498,6 +498,15 @@
     </div>
   </div>
 
+  <!-- Top Reasons -->
+  <div class="panel" style="margin-bottom:2.5rem">
+    <div class="panel-header">
+      <div class="panel-title">Top Reasons for Loan</div>
+      <span class="panel-count" id="reasons-count"></span>
+    </div>
+    <div class="bar-list" id="chart-reasons"></div>
+  </div>
+
   <!-- Damaged items -->
   <div class="panel">
     <div class="panel-header">
@@ -648,6 +657,21 @@ function render() {
   barChart('chart-colours', colFreq,   maxCol, true);
   barChart('chart-sizes',   sizeFreq,  maxSize);
   barChart('chart-brands',  brandFreq, maxBrand);
+
+  // Top reasons - clean up reason text (strip season suffix)
+  const loanReasons = allLoans.map(l => {
+    const r = String(l.reason||'').trim();
+    // Strip season info after ' — ' e.g. 'Market Week — RE27 NY' -> 'Market Week'
+    return r.split(' — ')[0].trim().toUpperCase();
+  }).filter(r => r);
+  const reasonFreq = freq(loanReasons);
+  const maxReason = reasonFreq[0]?.[1] || 1;
+  document.getElementById('reasons-count').textContent = reasonFreq.length + ' reason' + (reasonFreq.length !== 1 ? 's' : '');
+  barChart('chart-reasons', reasonFreq, maxReason, true);
+
+  // Also show full reasons (including season) as tooltip
+  const fullReasonFreq = freq(allLoans.map(l => String(l.reason||'').trim().toUpperCase()).filter(r => r));
+  const maxFull = fullReasonFreq[0]?.[1] || 1;
 
   // Top 5 requesters
   const tbody = document.getElementById('top-requesters');
