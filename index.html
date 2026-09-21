@@ -1265,6 +1265,12 @@
     white-space: nowrap;
   }
   .avail-until-btn { width: auto !important; min-width: 130px !important; max-width: none !important; white-space: nowrap !important; overflow: visible !important; padding: 5px 10px !important; font-size: 0.58rem !important; background: #1B2D5B !important; color: #fff !important; border-radius: 2px !important; }
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+  .flatpickr-day.blocked { background: #fee2e2 !important; color: #ef4444 !important; text-decoration: line-through; }
+  .flatpickr-day.blocked:hover { background: #fecaca !important; cursor: not-allowed; }
+  .form-input.flatpickr-input { background: #fff; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -2006,6 +2012,7 @@ function openModal(brand, item, colour, size, itemId) {
   document.getElementById('res-reason').value = '';
   document.getElementById('modal').classList.add('open');
   loadTeamIntoSelect();
+  if (pendingReserve && pendingReserve.itemId) initDatePickers(pendingReserve.itemId);
 }
 
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
@@ -2246,8 +2253,16 @@ function hasDateConflict(itemId,reqOut){if(!itemId)return false;const item=liveI
 function submitReservation() {
   if (pendingReserve && !pendingReserve.itemId) { const _m = liveItems.find(i => i.brand===pendingReserve.brand && i.item.toUpperCase()===pendingReserve.item.toUpperCase() && i.colour.toUpperCase()===pendingReserve.colour.toUpperCase() && i.size.trim()===pendingReserve.size.trim()); if (_m) pendingReserve.itemId = _m.id; }
   const name = document.getElementById('res-name').value.trim();
-  const dateOut = document.getElementById('res-date-out').value;
-  const dateIn = document.getElementById('res-date-in').value;
+  const dateOutRaw = document.getElementById('res-date-out').value;
+  const dateInRaw = document.getElementById('res-date-in').value;
+  // Parse d/m/Y or yyyy-mm-dd format
+  function parseDateInput(s) {
+    if (!s) return '';
+    if (s.includes('/')) { const p = s.split('/'); return p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0'); }
+    return s;
+  }
+  const dateOut = parseDateInput(dateOutRaw);
+  const dateIn = parseDateInput(dateInRaw);
   const reason = document.getElementById('res-reason').value;
   const season = document.getElementById('res-season') ? document.getElementById('res-season').value.trim() : '';
 
@@ -3164,5 +3179,79 @@ function populateBrandSelect() {
     <button onclick="document.getElementById('booking-block-modal').style.display='none'" style="background:#1B2D5B;color:#fff;border:none;border-radius:3px;padding:10px 24px;font-family:Arial,sans-serif;font-size:0.8rem;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase">Choose Different Dates</button>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr">
+// ── DATE PICKER WITH BLOCKED DATES ───────────────────────────────────────────
+let fpOut = null;
+let fpIn = null;
+
+function getBlockedDates(itemId) {
+  const item = liveItems.find(i => String(i.id) === String(itemId));
+  if (!item) return { blocked: [], minDate: 'today' };
+
+  const blocked = [];
+  const st = String(item.status||'').toUpperCase();
+
+  if (st === 'OUT' || st === 'REQUESTED') {
+    const dateOut = parseItemDate(item.dateOut);
+    const dateIn = parseItemDate(item.dateIn);
+    if (dateOut && dateIn) {
+      // Block from dateOut to dateIn + 1 day buffer
+      const current = new Date(dateOut);
+      const end = new Date(dateIn);
+      end.setDate(end.getDate() + 1);
+      while (current <= end) {
+        blocked.push(current.toISOString().split('T')[0]);
+        current.setDate(current.getDate() + 1);
+      }
+    }
+  }
+  return { blocked };
+}
+
+function initDatePickers(itemId) {
+  const { blocked } = getBlockedDates(itemId);
+
+  // Destroy existing pickers
+  if (fpOut) { fpOut.destroy(); fpOut = null; }
+  if (fpIn) { fpIn.destroy(); fpIn = null; }
+
+  const disableFn = blocked.length > 0 ? [function(date) {
+    const d = date.toISOString().split('T')[0];
+    return blocked.includes(d);
+  }] : [];
+
+  fpOut = flatpickr('#res-date-out', {
+    minDate: 'today',
+    dateFormat: 'd/m/Y',
+    disable: disableFn,
+    onDayCreate: function(dObj, dStr, fp, dayElem) {
+      const d = dayElem.dateObj ? dayElem.dateObj.toISOString().split('T')[0] : null;
+      if (d && blocked.includes(d)) {
+        dayElem.classList.add('blocked');
+        dayElem.title = 'Item on loan — unavailable';
+      }
+    },
+    onChange: function(selectedDates) {
+      if (fpIn && selectedDates[0]) {
+        fpIn.set('minDate', selectedDates[0]);
+      }
+    }
+  });
+
+  fpIn = flatpickr('#res-date-in', {
+    minDate: 'today',
+    dateFormat: 'd/m/Y',
+    disable: disableFn,
+    onDayCreate: function(dObj, dStr, fp, dayElem) {
+      const d = dayElem.dateObj ? dayElem.dateObj.toISOString().split('T')[0] : null;
+      if (d && blocked.includes(d)) {
+        dayElem.classList.add('blocked');
+        dayElem.title = 'Item on loan — unavailable';
+      }
+    }
+  });
+}
+
+</script>
 </body>
 </html>
