@@ -2191,13 +2191,17 @@ function getAvailabilityWindow(item) {
   
   const returnDate = parseItemDate(item.dateIn);
   if (!returnDate) return { available: false };
-  
-  // Available until = return date minus 7 days buffer
-  const availUntil = new Date(returnDate);
-  availUntil.setDate(availUntil.getDate() - 7);
-  
+
   const today = new Date();
   today.setHours(0,0,0,0);
+
+  // If item is already out (dateOut is today or in the past), it's not available
+  const dateOut = parseItemDate(item.dateOut);
+  if (dateOut && dateOut <= today) return { available: false, returnDate };
+
+  // Item is booked in the future - available until = dateOut minus 1 day buffer
+  const availUntil = new Date(dateOut);
+  availUntil.setDate(availUntil.getDate() - 1);
   
   if (availUntil >= today) {
     return { available: true, availableUntil: availUntil, returnDate };
