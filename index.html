@@ -1796,8 +1796,8 @@ function renderCatalogue() {
                     }
                     return '';
                   })()
-                : s.status === 'OUT_SKIP'
-                ? `<button disabled style="font-size:0.58rem;padding:3px 8px;background:var(--soft-grey);color:var(--warm-grey);border:none;border-radius:2px;letter-spacing:0.08em;text-transform:uppercase;cursor:not-allowed">Loaned</button>`
+                : (s.status === 'OUT' || s.status === 'REQUESTED' || s.status === 'CLEANING')
+                ? `<button disabled style="font-size:0.58rem;padding:3px 8px;background:var(--soft-grey);color:var(--warm-grey);border:none;border-radius:2px;letter-spacing:0.08em;text-transform:uppercase;cursor:not-allowed">${s.status === 'CLEANING' ? 'Cleaning' : s.status === 'REQUESTED' ? 'Requested' : 'On Loan'}</button>`
                 : `<button onclick="openModal('${escJs(group.brand)}','${escJs(group.item)}','${escJs(group.colour)}','${s.size.trim()}',${s.id})"
                     style="font-size:0.58rem;padding:3px 8px;background:var(--ink);color:var(--cream);border:none;cursor:pointer;border-radius:2px;letter-spacing:0.08em;text-transform:uppercase;flex-shrink:0">
                     Request
