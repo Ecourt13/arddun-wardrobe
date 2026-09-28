@@ -1264,7 +1264,7 @@
     letter-spacing: 0.06em;
     white-space: nowrap;
   }
-  .avail-until-btn { width: auto !important; min-width: 130px !important; max-width: none !important; white-space: nowrap !important; overflow: visible !important; padding: 5px 10px !important; font-size: 0.58rem !important; background: #1B2D5B !important; color: #fff !important; border-radius: 2px !important; }
+  .avail-until-btn { width: auto !important; min-width: 80px !important; max-width: none !important; white-space: nowrap !important; overflow: visible !important; padding: 5px 10px !important; font-size: 0.58rem !important; background: #1B2D5B !important; color: #fff !important; border-radius: 2px !important; }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
@@ -1796,8 +1796,8 @@ function renderCatalogue() {
                     const win = getAvailabilityWindow(s);
                     if (win.available && win.availableUntil) {
                       return `<button onclick="openModal('${escJs(group.brand)}','${escJs(group.item)}','${escJs(group.colour)}','${s.size.trim()}')"
-                        class="request-btn avail-until-btn" title="Available until ${fmtShort(win.availableUntil)}">
-                        Available until ${fmtShort(win.availableUntil)}
+                        class="request-btn avail-until-btn" title="Available from ${fmtShort(win.availableUntil)}">
+                        From ${fmtShort(win.availableUntil)}
                       </button>`;
                     }
                     return '';
