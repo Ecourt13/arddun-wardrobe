@@ -492,7 +492,7 @@
     <!-- Brand breakdown -->
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-title">Most Requested Brand</div>
+        <div class="panel-title">Most Requested Brand <span style="font-size:0.6rem;color:var(--muted);font-family:'DM Mono',monospace">% of loans</span></div>
       </div>
       <div class="bar-list" id="chart-brands"></div>
     </div>
@@ -610,15 +610,21 @@ function freq(arr) {
   arr.forEach(v => { if(v) map[v] = (map[v]||0)+1; });
   return Object.entries(map).sort((a,b)=>b[1]-a[1]);
 }
-function barChart(containerId, entries, max, gold=false) {
+function barChart(containerId, entries, max, gold=false, showPct=false) {
   const el = document.getElementById(containerId);
   if (!entries.length) { el.innerHTML = '<div class="empty-state">No data yet</div>'; return; }
-  el.innerHTML = entries.slice(0,8).map(([label, count]) => `
+  const total = entries.reduce((s, [,c]) => s + c, 0);
+  el.innerHTML = entries.slice(0,8).map(([label, count]) => {
+    const pct = total > 0 ? Math.round(count / total * 100) : 0;
+    const barW = max > 0 ? Math.round(count / max * 100) : 0;
+    const display = showPct ? pct + '%' : count;
+    return `
     <div class="bar-item">
       <div class="bar-label" title="${label}">${toTitle(label)}</div>
-      <div class="bar-track"><div class="bar-fill${gold?' gold':''}" style="width:${Math.round(count/max*100)}%"></div></div>
-      <div class="bar-count">${count}</div>
-    </div>`).join('');
+      <div class="bar-track"><div class="bar-fill${gold?' gold':''}" style="width:${barW}%"></div></div>
+      <div class="bar-count">${display}</div>
+    </div>`;
+  }).join('');
 }
 
 // ── RENDER ───────────────────────────────────────────────────────────────────
@@ -656,7 +662,7 @@ function render() {
   barChart('chart-items',   itemFreq,  maxItem);
   barChart('chart-colours', colFreq,   maxCol, true);
   barChart('chart-sizes',   sizeFreq,  maxSize);
-  barChart('chart-brands',  brandFreq, maxBrand);
+  barChart('chart-brands',  brandFreq, maxBrand, false, true);
 
   // Top reasons - show full reason including season e.g. "Market Week — RE27"
   const loanReasons = allLoans.map(l => {
